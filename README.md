@@ -3,75 +3,118 @@
 App mobile do Doc Mind. A spec completa está em
 [`../ref/SPECS/SPEC-FRONTEND.md`](../ref/SPECS/SPEC-FRONTEND.md).
 
-## Estado: Fase 3 — Models e mocks
-
-Concluídas as fases 1 a 3.
-
-### Fase 3 — Models e mocks
-
-Models Dart espelhando os schemas Pydantic do backend (Freezed +
-json_serializable, `field_rename: snake` no `build.yaml`):
-
-| Model | Schema do backend |
-| --- | --- |
-| `Document`, `DocumentStatus`, `DocumentType` | `DocumentResponse` |
-| `Conversation` | `ConversationResponse` |
-| `Message`, `Source`, `MessageRole` | `MessageResponse`, `Source` |
-| `User` | `UserResponse` |
-| `TokenPair` | `TokenPair` |
-
-Os enums têm um membro `unknown`: uma categoria nova no backend não pode
-derrubar a tela do usuário.
-
-Datasources com mock em memória — o de documentos simula o pipeline
-assíncrono (`uploaded` → `processing` → `indexed`), o de conversas responde
-por palavra-chave e **admite não saber** quando nada bate, que é o
-comportamento crítico no domínio jurídico.
-
-A troca mock/HTTP fica em `AppConfig.useMocks`, lido de `--dart-define`.
-
-### Fase 2 — Navegação
-
-`go_router` com `StatefulShellRoute.indexedStack`. Histórico de conversas e
-visualizador de PDF são rotas empilhadas no navigator raiz, cobrindo a tab bar.
-
-### Fase 1 — Design System
-
-O que existe:
-
-- **Tokens** (`lib/core/theme/`) — cores, tipografia Poppins, espaçamento,
-  radius e sombras, todos derivados de `ref/FRONT/design-system.md`.
-- **Tema Material** (`app_theme.dart`) — botões, inputs e divisores já saem
-  corretos sem estilo por chamada.
-- **Componentes compartilhados** (`lib/core/widgets/`) — `AppHeader`,
-  `AppTabBar`, `AppToggle`, `AppChip`, `AppCard`, `AppListGroup`/`AppListRow`,
-  `AppIconButton`, ícones.
-- **4 telas estáticas** — login, chat, documentos, ajustes.
-- **Galeria** (`lib/dev/gallery_page.dart`) — é a home nesta fase.
-
-Ainda **não** existe: navegação real, estado, models, HTTP, autenticação.
-
-### Retrabalho previsto e aceito
-
-As telas de Documentos e Ajustes usam os textos literais do design, incluindo
-dados que **não existem no backend**: tamanho de arquivo (`2,1 MB`), percentual
-de progresso (`64%`), badge `DOCX` (o backend só aceita PDF), "Plano Pro",
-"Notificações", "Tema escuro", "Estilo/Idioma das respostas" e "Privacidade e
-dados". As Fases 4 e 6 reescrevem essas telas contra o contrato real.
-
 ## Rodar
 
 ```bash
 flutter pub get
-flutter pub run build_runner build    # models Freezed e providers Riverpod
-flutter run                            # roda com mocks
+flutter pub run build_runner build   # models Freezed e providers Riverpod
+flutter run                          # roda com mocks, sem backend
 flutter test
 flutter analyze
 ```
 
+Contra o backend real, veja [SETUP.md](SETUP.md):
+
+```bash
+flutter run \
+  --dart-define=USE_MOCKS=false \
+  --dart-define=API_BASE_URL=http://localhost:8000 \
+  --dart-define=GOOGLE_WEB_CLIENT_ID=...
+```
+
 A galeria de componentes fica em Ajustes → Desenvolvimento.
 
-## Próxima fase
+## Arquitetura
 
-Fase 4 — tela de Documentos ligada aos models reais: lista, upload, polling
-de status e busca client-side.
+MVVM por feature, sem Clean Architecture. Cada feature é autocontida:
+
+```
+lib/
+├── core/            api, config, models, router, services, theme, utils, widgets
+└── features/
+    ├── auth/        datasources, providers, repositories, services, pages
+    ├── chat/        models, viewmodels, widgets, pages
+    ├── conversations/
+    ├── documents/
+    └── settings/
+```
+
+**Estado:** Riverpod com `riverpod_generator`. O ViewModel do MVVM *é* a
+classe `@riverpod class XViewModel extends _$XViewModel` — não há uma camada
+extra sobreposta ao Notifier.
+
+**Navegação:** `go_router` com `StatefulShellRoute.indexedStack`, que preserva
+o estado de cada aba. Histórico de conversas e visualizador de PDF são rotas
+empilhadas no navigator raiz, cobrindo a tab bar.
+
+**Mock ou HTTP:** a troca acontece no **datasource**, decidida por
+`AppConfig.useMocks`. O repositório é classe concreta única — uma só
+implementação não justificaria uma interface. Os mocks não foram descartados
+na integração: continuam servindo para rodar sem backend e para os testes.
+
+## Divergências entre o design e o backend
+
+O design foi desenhado antes do contrato da API existir. Onde os dois
+discordam, o app segue o backend:
+
+| Elemento do design | Situação | Decisão |
+| --- | --- | --- |
+| Tamanho do arquivo (`2,1 MB`) | `DocumentResponse` não tem o campo | Removido |
+| `4 arquivos · 28,4 MB` | idem | Virou `N documentos` |
+| Progresso em `64%` | Backend expõe `status`, não percentual | Barra indeterminada |
+| Badge `DOCX` | Backend aceita só `application/pdf` (415 no resto) | Badge sempre `PDF` |
+| Campo de busca | `GET /documents` não aceita parâmetro de busca | Filtro client-side |
+| "Plano Pro" | Não existe no backend | Removido |
+| Notificações, tema escuro | Não existem | Removidos |
+| Estilo/idioma das respostas | Prompt é fixo no backend | Removidos |
+| "Privacidade e dados" | Tela não desenhada | Removido |
+| "Citar fontes nas respostas" | `sources` sempre retorna | Virou preferência **local** de exibição |
+| Saudação do bot | Não é persistida pela API | Texto de interface |
+| Lista de conversas | Backend suporta, design não desenhou | Tela nova, com os componentes do design system |
+
+### Duas exceções deliberadas
+
+1. **"Entrar com e-mail"** continua na tela de login, fiel ao desenho, mas
+   abre um sheet informando que ainda não está disponível. Perder o botão
+   primário da tela custaria mais que mantê-lo marcado como futuro.
+2. **Mensagens de progresso do chat** são cronometradas, não observadas — o
+   backend não expõe a etapa do pipeline. Estão marcadas no código como
+   encenação, para que ninguém as leia como telemetria.
+
+## Decisões que não são óbvias no código
+
+- **Polling global, não por tela.** O provider de documentos é `keepAlive` e
+  faz polling de 2s enquanto houver documento em processamento, parando
+  sozinho quando não há. É global porque o subtítulo do chat ("N documentos no
+  contexto") consome o mesmo estado, e um upload precisa continuar sendo
+  acompanhado depois que o usuário troca de aba. Pausa em segundo plano e
+  consulta imediatamente ao voltar.
+- **Refresh single-flight.** Se várias requisições receberem 401 juntas, só
+  uma chama `/auth/refresh`; as demais aguardam. Sem isso o polling dispararia
+  renovações simultâneas e todas menos a primeira falhariam, já que o backend
+  invalida o refresh token a cada uso.
+- **Conversa criada preguiçosamente.** `POST /conversations` só acontece no
+  primeiro envio. Criar ao abrir a aba encheria o histórico de conversas
+  vazias. O título é gerado pelo backend a partir da primeira pergunta.
+- **Todas as fontes viram chip**, até as cinco do `RETRIEVAL_TOP_K`. Mostrar
+  só a de maior score esconderia quatro de cinco e contrariaria o ponto do
+  produto. Toque abre o PDF na página; toque longo mostra o trecho e a
+  similaridade.
+- **Enums toleram valores desconhecidos.** Um `doc_type` novo no backend
+  degrada para `unknown` em vez de quebrar o parse e derrubar a tela.
+
+## Testes
+
+56 testes. A seam é única: o **datasource**, injetado via
+`ProviderScope(overrides:)`. Ela já existia por necessidade da arquitetura —
+não foi criada para testar.
+
+| Arquivo | Cobre |
+| --- | --- |
+| `models_test.dart` | Parse contra JSON idêntico ao do FastAPI |
+| `mock_datasources_test.dart` | Pipeline assíncrono e respostas do chat |
+| `documents_page_test.dart` | Lista, busca, polling, divergências do design |
+| `chat_page_test.dart` | Envio, fontes, criação preguiçosa, falhas |
+| `auth_interceptor_test.dart` | Single-flight, renovação, sessão expirada |
+| `auth_flow_test.dart` | Restauração de sessão e logout |
+| `widget_test.dart` | Navegação e três viewports (390×844, 1200×900, 800×600) |

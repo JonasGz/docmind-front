@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../dev/gallery_page.dart';
+import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/pages/login_page.dart';
 import '../../features/chat/pages/chat_page.dart';
 import '../../features/conversations/pages/conversations_page.dart';
@@ -11,6 +13,8 @@ import '../../features/settings/pages/settings_page.dart';
 import 'app_shell.dart';
 import 'routes.dart';
 
+part 'app_router.g.dart';
+
 /// Rotas do aplicativo.
 ///
 /// Fase 2: a estrutura completa de navegação, ainda sem guarda de sessão — o
@@ -19,7 +23,7 @@ import 'routes.dart';
 ///
 /// É uma função, não uma constante global: cada teste precisa de uma instância
 /// própria, senão a rota atual vaza de um teste para o outro.
-GoRouter createRouter({String initialLocation = Routes.chat}) {
+GoRouter createRouter({String initialLocation = Routes.chat, Ref? ref}) {
   // As rotas empilhadas (histórico, visualizador) declaram este navigator
   // para cobrir a tab bar em vez de renderizar dentro da aba.
   final rootKey = GlobalKey<NavigatorState>();
@@ -27,6 +31,7 @@ GoRouter createRouter({String initialLocation = Routes.chat}) {
   return GoRouter(
     navigatorKey: rootKey,
     initialLocation: initialLocation,
+    redirect: ref == null ? null : (context, state) => _guard(ref, state),
     routes: [
       GoRoute(
         path: Routes.login,
@@ -91,5 +96,26 @@ GoRouter createRouter({String initialLocation = Routes.chat}) {
   );
 }
 
-/// Instância única usada pelo aplicativo em produção.
-final appRouter = createRouter();
+/// Envia à tela de login quem não tem sessão, e tira de lá quem já entrou.
+///
+/// Enquanto a sessão está sendo restaurada não redireciona nada: mandar para
+/// o login antes de saber se há token faria a tela piscar a cada abertura.
+String? _guard(Ref ref, GoRouterState state) {
+  final session = ref.read(authViewModelProvider);
+  if (session.isLoading) return null;
+
+  final isSignedIn = session.value != null;
+  final atLogin = state.matchedLocation == Routes.login;
+
+  if (!isSignedIn && !atLogin) return Routes.login;
+  if (isSignedIn && atLogin) return Routes.chat;
+  return null;
+}
+
+/// Instância do aplicativo, com a guarda de sessão ligada.
+@Riverpod(keepAlive: true)
+GoRouter appRouter(Ref ref) {
+  // Reavalia a guarda quando a sessão muda.
+  ref.listen(authViewModelProvider, (_, _) {});
+  return createRouter(ref: ref);
+}

@@ -9,19 +9,20 @@ void main() {
   runApp(const ProviderScope(child: DocMindApp()));
 }
 
-class DocMindApp extends StatelessWidget {
+class DocMindApp extends ConsumerWidget {
   const DocMindApp({super.key, this.router});
 
-  /// Injetável para que cada teste use um router próprio.
+  /// Injetável para que cada teste use um router próprio, sem a guarda de
+  /// sessão.
   final GoRouter? router;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'Doc Mind',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      routerConfig: router ?? appRouter,
+      routerConfig: router ?? ref.watch(appRouterProvider),
     );
   }
 }
