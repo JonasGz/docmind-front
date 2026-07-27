@@ -25,6 +25,31 @@ Detalhes e configuração do Google em [SETUP.md](SETUP.md).
 
 A galeria de componentes fica em Ajustes → Desenvolvimento.
 
+## Telas
+
+As imagens abaixo são o **design de referência**, não capturas do app rodando.
+Vários elementos nelas não existem no produto — o backend não os suporta. As
+diferenças estão listadas em [Divergências entre o design e o
+backend](#divergências-entre-o-design-e-o-backend).
+
+| | |
+| --- | --- |
+| <img src="docs/screens/login-screen.png" width="300" alt="Tela de login com Continuar com Google e Entrar com e-mail"> | <img src="docs/screens/chat-screen.png" width="300" alt="Tela de chat com pergunta, resposta e chip de fonte"> |
+| **Login** — `/login`<br>Entrar com Google. "Entrar com e-mail" está no desenho e no app, mas abre um sheet *Em breve*. | **Chat** — `/chat`<br>Pergunta e resposta sobre os documentos. Subtítulo conta `N documentos no contexto`; cada fonte vira chip que abre o PDF na página citada. |
+| <img src="docs/screens/documents-screen.png" width="300" alt="Lista de documentos com busca, upload e status"> | <img src="docs/screens/settings-screen.png" width="300" alt="Tela de ajustes com preferências e conta"> |
+| **Documentos** — `/documents`<br>Lista com busca client-side e upload. No app: só PDF, sem tamanho de arquivo e com barra indeterminada em vez de `64%`. | **Ajustes** — `/settings`<br>No app sobra *Citar fontes nas respostas* (preferência local), sair da conta e a galeria. Plano Pro, notificações e tema escuro não existem. |
+
+Sem mockup, mas implementadas:
+
+| Tela | Rota | O que faz |
+| --- | --- | --- |
+| **Conversas** | `/chat/conversations` | Histórico empilhado sobre o chat — abrir ou excluir conversa. O backend suporta; o design não desenhou. |
+| **Visualizador** | `/documents/viewer/:id` | PDF em tela cheia, abrindo direto na página citada pelo chip. |
+| **Galeria** | `/dev/gallery` | Design system: tipografia, botões, chips e cards. Ajustes → Desenvolvimento. |
+
+Três abas em `StatefulShellRoute.indexedStack` (Chat, Documentos, Ajustes);
+login, conversas e visualizador ficam fora da tab bar.
+
 ## Arquitetura
 
 MVVM por feature, sem Clean Architecture. Cada feature é autocontida:
