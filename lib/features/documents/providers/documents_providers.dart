@@ -1,7 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/api/api_client.dart';
 import '../../../core/config/app_config.dart';
 import '../datasources/documents_datasource.dart';
+import '../datasources/documents_http_datasource.dart';
 import '../datasources/documents_mock_datasource.dart';
 import '../models/document.dart';
 import '../repositories/documents_repository.dart';
@@ -20,11 +22,7 @@ DocumentsDatasource documentsDatasource(Ref ref) {
     return datasource;
   }
 
-  // Fase 8: DocumentsHttpDatasource(ref.watch(dioProvider)).
-  throw UnimplementedError(
-    'O datasource HTTP de documentos chega na Fase 8. '
-    'Rode com --dart-define=USE_MOCKS=true até lá.',
-  );
+  return DocumentsHttpDatasource(ref.watch(dioProvider));
 }
 
 @Riverpod(keepAlive: true)

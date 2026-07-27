@@ -9,47 +9,6 @@ part of 'auth_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(tokenStorage)
-final tokenStorageProvider = TokenStorageProvider._();
-
-final class TokenStorageProvider
-    extends $FunctionalProvider<TokenStorage, TokenStorage, TokenStorage>
-    with $Provider<TokenStorage> {
-  TokenStorageProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'tokenStorageProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$tokenStorageHash();
-
-  @$internal
-  @override
-  $ProviderElement<TokenStorage> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  TokenStorage create(Ref ref) {
-    return tokenStorage(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(TokenStorage value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<TokenStorage>(value),
-    );
-  }
-}
-
-String _$tokenStorageHash() => r'951d26ea86fa5460608549d5af2c2b5b6be96358';
-
 @ProviderFor(authDatasource)
 final authDatasourceProvider = AuthDatasourceProvider._();
 
@@ -89,7 +48,7 @@ final class AuthDatasourceProvider
   }
 }
 
-String _$authDatasourceHash() => r'89ce2b0c1dc52e1538c1bfdf9b55ae9410aa97bd';
+String _$authDatasourceHash() => r'1aa09f682886c47c24539f568e59b6a2b854760e';
 
 @ProviderFor(authRepository)
 final authRepositoryProvider = AuthRepositoryProvider._();

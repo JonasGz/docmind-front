@@ -59,7 +59,7 @@ final class ConversationsDatasourceProvider
 }
 
 String _$conversationsDatasourceHash() =>
-    r'89ed3d8ae98aacde86d3184f7362a07ac7bfe0d8';
+    r'1e91fd47f33b451025ee33191626632d4880cfde';
 
 @ProviderFor(conversationsRepository)
 final conversationsRepositoryProvider = ConversationsRepositoryProvider._();

@@ -1,7 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/api/api_client.dart';
 import '../../../core/config/app_config.dart';
 import '../datasources/conversations_datasource.dart';
+import '../datasources/conversations_http_datasource.dart';
 import '../datasources/conversations_mock_datasource.dart';
 import '../repositories/conversations_repository.dart';
 
@@ -14,11 +16,7 @@ ConversationsDatasource conversationsDatasource(Ref ref) {
     return ConversationsMockDatasource();
   }
 
-  // Fase 8: ConversationsHttpDatasource(ref.watch(dioProvider)).
-  throw UnimplementedError(
-    'O datasource HTTP de conversas chega na Fase 8. '
-    'Rode com --dart-define=USE_MOCKS=true até lá.',
-  );
+  return ConversationsHttpDatasource(ref.watch(dioProvider));
 }
 
 @Riverpod(keepAlive: true)

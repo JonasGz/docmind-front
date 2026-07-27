@@ -1,27 +1,21 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/api/api_client.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/models/user.dart';
-import '../../../core/services/token_storage.dart';
+import '../../../core/services/token_storage_provider.dart';
 import '../datasources/auth_datasource.dart';
+import '../datasources/auth_http_datasource.dart';
 import '../datasources/auth_mock_datasource.dart';
 import '../repositories/auth_repository.dart';
 
 part 'auth_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-TokenStorage tokenStorage(Ref ref) =>
-    AppConfig.useMocks ? InMemoryTokenStorage() : const SecureTokenStorage();
-
-@Riverpod(keepAlive: true)
 AuthDatasource authDatasource(Ref ref) {
   if (AppConfig.useMocks) return AuthMockDatasource();
 
-  // Fase 9 substitui por AuthHttpDatasource.
-  throw UnimplementedError(
-    'O datasource HTTP de autenticação chega na Fase 9. '
-    'Rode com --dart-define=USE_MOCKS=true até lá.',
-  );
+  return AuthHttpDatasource(ref.watch(dioProvider));
 }
 
 @Riverpod(keepAlive: true)
