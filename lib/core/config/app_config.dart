@@ -11,4 +11,11 @@ abstract final class AppConfig {
     'API_BASE_URL',
     defaultValue: 'http://localhost:8000',
   );
+
+  /// Client ID **web** do Google, usado como `serverClientId`. É a audiência
+  /// que o backend valida — os Client IDs de iOS e Android não servem aqui.
+  /// Ver SETUP.md.
+  static const googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+  );
 }

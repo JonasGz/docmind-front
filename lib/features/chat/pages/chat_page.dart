@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/routes.dart';
@@ -9,24 +10,54 @@ import '../../../core/widgets/app_header.dart';
 import '../../../core/widgets/app_icon_button.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/content_width.dart';
+import '../../documents/viewmodels/documents_viewmodel.dart';
+import '../../settings/providers/preferences_provider.dart';
+import '../viewmodels/chat_viewmodel.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/chat_composer.dart';
+import '../widgets/chat_empty_state.dart';
+import '../widgets/typing_indicator.dart';
 
-/// Tela de chat.
-///
-/// Fase 1: maquete estática com as mensagens literais do design. O estado real
-/// e o envio entram na Fase 5.
-class ChatPage extends StatelessWidget {
+class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key});
 
   @override
+  ConsumerState<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends ConsumerState<ChatPage> {
+  final _composerController = TextEditingController();
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _composerController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final chat = ref.watch(chatViewModelProvider);
+    final indexedCount = ref.watch(indexedDocumentCountProvider);
+    final citeSources = ref.watch(citeSourcesPreferenceProvider).value ?? true;
+
+    ref.listen(chatViewModelProvider, (previous, next) {
+      if (next.messages.length != previous?.messages.length ||
+          next.isAwaitingAnswer != previous?.isAwaitingAnswer) {
+        _scrollToBottom();
+      }
+      if (next.sendError != null && previous?.sendError == null) {
+        _showSendError();
+      }
+    });
+
     return ContentWidth(
       child: Column(
         children: [
           AppHeader(
             title: 'Chat',
-            subtitle: '4 documentos no contexto',
+            subtitle: _contextLabel(indexedCount),
             action: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -41,183 +72,135 @@ class ChatPage extends StatelessWidget {
                   icon: AppIcons.add,
                   semanticLabel: 'Nova conversa',
                   size: 38,
-                  onPressed: () {},
+                  onPressed: chat.isEmpty
+                      ? null
+                      : () {
+                          ref
+                              .read(chatViewModelProvider.notifier)
+                              .startNewConversation();
+                          _composerController.clear();
+                        },
                 ),
               ],
             ),
           ),
-          const Expanded(child: _MessageList()),
-          const ChatComposer(),
+          Expanded(
+            child: chat.isEmpty && !chat.isAwaitingAnswer
+                ? ChatEmptyState(indexedCount: indexedCount)
+                : _MessageList(
+                    controller: _scrollController,
+                    chat: chat,
+                    showSources: citeSources,
+                  ),
+          ),
+          ChatComposer(
+            controller: _composerController,
+            enabled: !chat.isAwaitingAnswer,
+            onSend: _send,
+          ),
         ],
+      ),
+    );
+  }
+
+  /// O subtítulo consome o mesmo provider global da aba Documentos, sem
+  /// buscar nada por conta própria.
+  String _contextLabel(int count) => switch (count) {
+    0 => 'nenhum documento no contexto',
+    1 => '1 documento no contexto',
+    _ => '$count documentos no contexto',
+  };
+
+  void _send() {
+    final text = _composerController.text;
+    if (text.trim().isEmpty) return;
+
+    _composerController.clear();
+    ref.read(chatViewModelProvider.notifier).send(text);
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  void _showSendError() {
+    final failed = ref.read(chatViewModelProvider).sendError;
+    if (failed == null) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Não foi possível enviar a pergunta.'),
+        backgroundColor: AppColors.danger,
+        action: SnackBarAction(
+          label: 'Tentar de novo',
+          textColor: AppColors.white,
+          onPressed: () {
+            ref.read(chatViewModelProvider.notifier).clearError();
+            _send();
+          },
+        ),
       ),
     );
   }
 }
 
 class _MessageList extends StatelessWidget {
-  const _MessageList();
+  const _MessageList({
+    required this.controller,
+    required this.chat,
+    required this.showSources,
+  });
+
+  final ScrollController controller;
+  final ChatState chat;
+  final bool showSources;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return ListView.separated(
+      controller: controller,
       padding: const EdgeInsets.all(AppSpacing.screenPadding),
-      children: const [
-        BotBubble(
-          text:
-              'Olá, Marina! Seus documentos já foram processados. '
-              'Pergunte qualquer coisa sobre eles.',
-        ),
-        SizedBox(height: AppSpacing.lg),
-        UserBubble(text: 'Qual o prazo de vigência do contrato de locação?'),
-        SizedBox(height: AppSpacing.lg),
-        BotBubble(
-          text:
-              'O contrato tem vigência de 30 meses, com início em 1º de '
-              'março de 2026 e término em 31 de agosto de 2028. Há cláusula '
-              'de renovação automática mediante aviso prévio de 90 dias.',
-          sources: ['Contrato_Locacao.pdf · pág. 4'],
-        ),
-      ],
+      itemCount: chat.messages.length + (chat.isAwaitingAnswer ? 1 : 0),
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.lg),
+      itemBuilder: (context, index) {
+        if (index == chat.messages.length) {
+          return const Align(
+            alignment: Alignment.centerLeft,
+            child: TypingIndicator(),
+          );
+        }
+
+        final message = chat.messages[index];
+        if (message.role.isUser) {
+          return UserBubble(text: message.content);
+        }
+
+        return BotBubble(
+          text: message.content,
+          sources: showSources ? (message.sources ?? const []) : const [],
+        );
+      },
     );
   }
 }
 
-/// Indicador "digitando": 3 dots com stagger de .18s, ciclo de 1.1s.
-class TypingIndicator extends StatefulWidget {
-  const TypingIndicator({super.key});
-
-  @override
-  State<TypingIndicator> createState() => _TypingIndicatorState();
-}
-
-class _TypingIndicatorState extends State<TypingIndicator>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1100),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+/// Texto de apoio quando não há mensagens — a saudação do desenho não é
+/// persistida pela API, então vive só na interface.
+class ChatEmptyStateText extends StatelessWidget {
+  const ChatEmptyStateText({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // prefers-reduced-motion: sem animação, dots estáticos.
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
-
-    return Row(
-      children: [
-        const BotAvatar(),
-        const SizedBox(width: AppSpacing.md),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.gray200),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(2),
-              topRight: Radius.circular(AppRadius.md),
-              bottomLeft: Radius.circular(AppRadius.md),
-              bottomRight: Radius.circular(AppRadius.md),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var i = 0; i < 3; i++) ...[
-                if (i > 0) const SizedBox(width: AppSpacing.xs),
-                if (reduceMotion)
-                  const _Dot(opacity: 0.6, offsetY: 0)
-                else
-                  AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, _) {
-                      // 0–40%: sobe e acende; 40–80%: volta; 80–100%: parado.
-                      final t = (_controller.value - i * 0.18) % 1.0;
-                      final lift = t < 0.4
-                          ? t / 0.4
-                          : t < 0.8
-                          ? 1 - (t - 0.4) / 0.4
-                          : 0.0;
-                      return _Dot(
-                        opacity: 0.25 + 0.75 * lift,
-                        offsetY: -3 * lift,
-                      );
-                    },
-                  ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Dot extends StatelessWidget {
-  const _Dot({required this.opacity, required this.offsetY});
-
-  final double opacity;
-  final double offsetY;
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(0, offsetY),
-      child: Opacity(
-        opacity: opacity,
-        child: Container(
-          width: 6,
-          height: 6,
-          decoration: const BoxDecoration(
-            color: AppColors.blue900,
-            shape: BoxShape.circle,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Quadrado 30×30 blue-900 com o sparkle dourado, à esquerda das mensagens
-/// do bot.
-class BotAvatar extends StatelessWidget {
-  const BotAvatar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        color: AppColors.blue900,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: const Center(
-        child: SparkleIcon(size: 15, color: AppColors.gold500),
-      ),
-    );
-  }
-}
-
-/// Texto de apoio da tela vazia — não existe no design, mas evita uma tela
-/// em branco antes da primeira mensagem.
-class ChatEmptyHint extends StatelessWidget {
-  const ChatEmptyHint({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Pergunte algo sobre seus documentos.',
-        style: AppTypography.body.copyWith(color: AppColors.gray400),
-      ),
+    return Text(
+      'Pergunte algo sobre seus documentos.',
+      style: AppTypography.body.copyWith(color: AppColors.gray400),
     );
   }
 }

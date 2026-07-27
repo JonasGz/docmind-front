@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/models/user.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -10,28 +12,26 @@ import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_list_group.dart';
 import '../../../core/widgets/app_toggle.dart';
 import '../../../core/widgets/content_width.dart';
+import '../../auth/providers/auth_providers.dart';
+import '../providers/preferences_provider.dart';
 import '../widgets/profile_card.dart';
 
-/// Tela de ajustes.
+/// Ajustes.
 ///
-/// Fase 1: maquete estática, fiel ao design — inclui "Plano Pro",
-/// "Notificações", "Tema escuro", "Estilo/Idioma das respostas" e
-/// "Privacidade e dados", que **não existem** no backend. A Fase 6 corta tudo
-/// isso e deixa só perfil / citar fontes / sair (decisão Q2).
-class SettingsPage extends StatefulWidget {
+/// Enxuto em relação ao desenho: "Plano Pro", notificações, tema escuro,
+/// estilo e idioma das respostas, e "Privacidade e dados" não existem no
+/// backend e foram removidos. Interface que promete o que o sistema não faz
+/// é dívida que ninguém remove.
+///
+/// Sobrou o que tem efeito real: perfil, citação de fontes e sair da conta.
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider).value;
+    final citeSources = ref.watch(citeSourcesPreferenceProvider).value ?? true;
 
-class _SettingsPageState extends State<SettingsPage> {
-  bool _notifications = true;
-  bool _citeSources = true;
-  bool _darkMode = false;
-
-  @override
-  Widget build(BuildContext context) {
     return ContentWidth(
       child: Column(
         children: [
@@ -40,62 +40,21 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.screenPadding),
               children: [
-                const ProfileCard(
-                  initials: 'MB',
-                  name: 'Marina Barros',
-                  email: 'marina.barros@gmail.com',
-                  badge: 'Plano Pro',
-                ),
+                _ProfileSection(user: user),
                 const SizedBox(height: 18),
                 AppListGroup(
                   title: 'Preferências',
                   children: [
                     AppListRow(
-                      icon: AppIcons.notifications,
-                      label: 'Notificações',
-                      trailing: AppToggle(
-                        value: _notifications,
-                        semanticLabel: 'Alternar notificações',
-                        onChanged: (value) =>
-                            setState(() => _notifications = value),
-                      ),
-                    ),
-                    AppListRow(
                       icon: AppIcons.document,
                       label: 'Citar fontes nas respostas',
                       trailing: AppToggle(
-                        value: _citeSources,
+                        value: citeSources,
                         semanticLabel: 'Alternar citação de fontes',
-                        onChanged: (value) =>
-                            setState(() => _citeSources = value),
+                        onChanged: (value) => ref
+                            .read(citeSourcesPreferenceProvider.notifier)
+                            .toggle(value),
                       ),
-                    ),
-                    AppListRow(
-                      icon: AppIcons.darkMode,
-                      label: 'Tema escuro',
-                      trailing: AppToggle(
-                        value: _darkMode,
-                        semanticLabel: 'Alternar tema escuro',
-                        onChanged: (value) => setState(() => _darkMode = value),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                const AppListGroup(
-                  title: 'Inteligência',
-                  children: [
-                    AppListRow(
-                      icon: Icons.auto_awesome_outlined,
-                      label: 'Estilo das respostas',
-                      value: 'Objetivo',
-                      showChevron: true,
-                    ),
-                    AppListRow(
-                      icon: AppIcons.language,
-                      label: 'Idioma das respostas',
-                      value: 'Português',
-                      showChevron: true,
                     ),
                   ],
                 ),
@@ -103,22 +62,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 AppListGroup(
                   title: 'Conta',
                   children: [
-                    const AppListRow(
-                      icon: AppIcons.lock,
-                      label: 'Privacidade e dados',
-                      showChevron: true,
-                    ),
                     AppListRow(
                       icon: AppIcons.logout,
                       label: 'Sair da conta',
                       destructive: true,
-                      // Fase 2: só navega. Limpar tokens entra na Fase 9.
-                      onTap: () => context.go(Routes.login),
+                      onTap: () => _confirmSignOut(context, ref),
                     ),
                   ],
                 ),
                 const SizedBox(height: 18),
-                // Atalho de desenvolvimento — sai antes do release.
                 AppListGroup(
                   title: 'Desenvolvimento',
                   children: [
@@ -142,5 +94,53 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sair da conta?'),
+        content: const Text(
+          'Seus documentos continuam salvos e estarão aqui quando você voltar.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    await ref.read(authViewModelProvider.notifier).signOut();
+    if (context.mounted) context.go(Routes.login);
+  }
+}
+
+class _ProfileSection extends StatelessWidget {
+  const _ProfileSection({required this.user});
+
+  final User? user;
+
+  @override
+  Widget build(BuildContext context) {
+    if (user case final user?) {
+      // Sem badge: o backend não tem planos.
+      return ProfileCard(
+        initials: user.initials,
+        name: user.displayName,
+        email: user.email,
+      );
+    }
+
+    return const ProfileCard(initials: '—', name: 'Carregando…', email: '');
   }
 }

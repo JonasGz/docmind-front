@@ -13,8 +13,9 @@ import '../core/widgets/app_icons.dart';
 import '../core/widgets/app_list_group.dart';
 import '../core/widgets/app_tab_bar.dart';
 import '../core/widgets/app_toggle.dart';
-import '../features/chat/pages/chat_page.dart';
+import '../features/chat/models/source.dart';
 import '../features/chat/widgets/chat_bubble.dart';
+import '../features/chat/widgets/typing_indicator.dart';
 import '../features/documents/models/document.dart';
 import '../features/documents/models/document_status.dart';
 import '../features/documents/models/document_type.dart';
@@ -442,14 +443,31 @@ class _ChatSamples extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Column(
       children: [
-        BotBubble(text: 'Bolha do bot, sem fonte citada.'),
+        BotBubble(text: 'Resposta sem fonte citada.'),
         SizedBox(height: AppSpacing.md),
         BotBubble(
-          text: 'Bolha do bot com uma fonte.',
-          sources: ['Contrato_Locacao.pdf · pág. 4'],
+          text:
+              'Resposta com duas fontes — toque abre o PDF, toque longo '
+              'mostra o trecho e a similaridade.',
+          sources: [
+            Source(
+              documentId: 'doc-contrato-locacao',
+              documentTitle: 'Contrato de Locação Comercial',
+              page: 4,
+              score: 0.8734,
+              excerpt: 'A vigência do presente contrato será de 30 meses…',
+            ),
+            Source(
+              documentId: 'doc-contrato-locacao',
+              documentTitle: 'Contrato de Locação Comercial',
+              page: 5,
+              score: 0.6102,
+              excerpt: 'A renovação dar-se-á automaticamente…',
+            ),
+          ],
         ),
         SizedBox(height: AppSpacing.md),
-        UserBubble(text: 'Bolha do usuário.'),
+        UserBubble(text: 'Pergunta do usuário.'),
         SizedBox(height: AppSpacing.md),
         Align(alignment: Alignment.centerLeft, child: TypingIndicator()),
       ],

@@ -55,7 +55,7 @@ final class DocumentsViewModelProvider
 }
 
 String _$documentsViewModelHash() =>
-    r'24b726cf819fcb3a26278cc6ad2cf4453edf627a';
+    r'948d41b9403c0d81ed107fa5c6093a02c96bbb54';
 
 /// Lista de documentos do usuário, com polling enquanto houver documento em
 /// processamento.
@@ -128,4 +128,4 @@ final class IndexedDocumentCountProvider
 }
 
 String _$indexedDocumentCountHash() =>
-    r'28cdf118cf24771fbc9b5214c5d37e5ceafd021a';
+    r'bc2085407aa05002b0f2cfe0f7212bf9b696934c';

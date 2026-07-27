@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/routes.dart';
@@ -7,6 +8,8 @@ import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../providers/auth_providers.dart';
+import '../services/google_sign_in_service.dart';
 
 /// Tela de login.
 ///
@@ -125,8 +128,48 @@ class _Hero extends StatelessWidget {
 }
 
 /// Sheet branco com radius 22 no topo, sombra ascendente e os dois botões.
-class _SignInSheet extends StatelessWidget {
+class _SignInSheet extends ConsumerStatefulWidget {
   const _SignInSheet();
+
+  @override
+  ConsumerState<_SignInSheet> createState() => _SignInSheetState();
+}
+
+class _SignInSheetState extends ConsumerState<_SignInSheet> {
+  bool _signingIn = false;
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _signingIn = true);
+
+    try {
+      final idToken = await ref.read(googleSignInServiceProvider).signIn();
+      // Cancelado pelo usuário: volta ao estado inicial, sem erro.
+      if (idToken == null) return;
+
+      await ref.read(authViewModelProvider.notifier).signInWithGoogle(idToken);
+
+      if (!mounted) return;
+      final session = ref.read(authViewModelProvider);
+      if (session.hasError) {
+        _showSignInError();
+        return;
+      }
+      context.go(Routes.chat);
+    } on Object {
+      if (mounted) _showSignInError();
+    } finally {
+      if (mounted) setState(() => _signingIn = false);
+    }
+  }
+
+  void _showSignInError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Não foi possível entrar. Tente de novo.'),
+        backgroundColor: AppColors.danger,
+      ),
+    );
+  }
 
   /// O botão existe no design mas o backend só autentica via Google. Em vez
   /// de removê-lo, ele explica que ainda não está disponível (decisão Q4).
@@ -203,11 +246,18 @@ class _SignInSheet extends StatelessWidget {
               Text('Entrar no Doc Mind', style: AppTypography.sectionTitle),
               const SizedBox(height: AppSpacing.lg),
               OutlinedButton.icon(
-                // Fase 2: entra direto no app. O Google Sign-In real é a
-                // Fase 9.
-                onPressed: () => context.go(Routes.chat),
-                icon: const GoogleLogo(),
-                label: const Text('Continuar com Google'),
+                onPressed: _signingIn ? null : _signInWithGoogle,
+                icon: _signingIn
+                    ? const SizedBox(
+                        width: 19,
+                        height: 19,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.blue900,
+                        ),
+                      )
+                    : const GoogleLogo(),
+                label: Text(_signingIn ? 'Entrando…' : 'Continuar com Google'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(AppSize.signInButton),
                   textStyle: AppTypography.labelMedium.copyWith(fontSize: 15),
