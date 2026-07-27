@@ -34,8 +34,7 @@ class DocumentsHttpDatasource implements DocumentsDatasource {
       'file': MultipartFile.fromBytes(
         bytes,
         filename: filename,
-        // O backend valida o content-type e responde 415 para qualquer coisa
-        // que não seja PDF.
+
         contentType: DioMediaType('application', 'pdf'),
       ),
     });

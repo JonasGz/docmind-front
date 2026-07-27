@@ -15,17 +15,7 @@ import 'routes.dart';
 
 part 'app_router.g.dart';
 
-/// Rotas do aplicativo.
-///
-/// Fase 2: a estrutura completa de navegação, ainda sem guarda de sessão — o
-/// redirecionamento por autenticação entra na Fase 9, quando existir token.
-/// Enquanto isso o login é alcançável pela galeria e pelo "Sair da conta".
-///
-/// É uma função, não uma constante global: cada teste precisa de uma instância
-/// própria, senão a rota atual vaza de um teste para o outro.
 GoRouter createRouter({String initialLocation = Routes.chat, Ref? ref}) {
-  // As rotas empilhadas (histórico, visualizador) declaram este navigator
-  // para cobrir a tab bar em vez de renderizar dentro da aba.
   final rootKey = GlobalKey<NavigatorState>();
 
   return GoRouter(
@@ -51,8 +41,6 @@ GoRouter createRouter({String initialLocation = Routes.chat, Ref? ref}) {
                 path: Routes.chat,
                 builder: (context, state) => const ChatPage(),
                 routes: [
-                  // Histórico empilhado sobre a aba Chat, não uma quarta aba.
-                  // Vai no navigator raiz para cobrir a tab bar.
                   GoRoute(
                     path: 'conversations',
                     parentNavigatorKey: rootKey,
@@ -96,10 +84,6 @@ GoRouter createRouter({String initialLocation = Routes.chat, Ref? ref}) {
   );
 }
 
-/// Envia à tela de login quem não tem sessão, e tira de lá quem já entrou.
-///
-/// Enquanto a sessão está sendo restaurada não redireciona nada: mandar para
-/// o login antes de saber se há token faria a tela piscar a cada abertura.
 String? _guard(Ref ref, GoRouterState state) {
   final session = ref.read(authViewModelProvider);
   if (session.isLoading) return null;
@@ -112,10 +96,8 @@ String? _guard(Ref ref, GoRouterState state) {
   return null;
 }
 
-/// Instância do aplicativo, com a guarda de sessão ligada.
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
-  // Reavalia a guarda quando a sessão muda.
   ref.listen(authViewModelProvider, (_, _) {});
   return createRouter(ref: ref);
 }

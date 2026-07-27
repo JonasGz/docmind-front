@@ -7,8 +7,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_icons.dart';
 
-/// Botão de upload com borda tracejada dourada. O Flutter não tem borda
-/// tracejada nativa, então ela é pintada.
 class UploadButton extends StatefulWidget {
   const UploadButton({super.key, required this.onPressed});
 
@@ -83,7 +81,6 @@ class _DashedBorderPainter extends CustomPainter {
         ),
       );
 
-    // Traço de 6px com 4px de intervalo, ao longo do perímetro arredondado.
     for (final metric in path.computeMetrics()) {
       var distance = 0.0;
       while (distance < metric.length) {

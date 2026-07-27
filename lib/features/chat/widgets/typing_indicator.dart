@@ -7,13 +7,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import 'bot_avatar.dart';
 
-/// Indicador de espera: três pontos animados e, conforme o tempo passa, uma
-/// linha de progresso.
-///
-/// As mensagens de progresso são **cronometradas, não observadas** — o
-/// backend não expõe a etapa do pipeline. São encenação deliberada para que a
-/// espera de uma resposta RAG não pareça travamento, e não devem ser lidas
-/// como telemetria real.
 class TypingIndicator extends StatefulWidget {
   const TypingIndicator({super.key});
 
@@ -41,7 +34,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
   @override
   void initState() {
     super.initState();
-    // Um tick por segundo basta: os estágios mudam a cada poucos segundos.
+
     _stageTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });

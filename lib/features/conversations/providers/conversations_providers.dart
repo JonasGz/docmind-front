@@ -9,7 +9,6 @@ import '../repositories/conversations_repository.dart';
 
 part 'conversations_providers.g.dart';
 
-/// Ponto de troca mock/HTTP e seam de teste, como em documentos.
 @Riverpod(keepAlive: true)
 ConversationsDatasource conversationsDatasource(Ref ref) {
   if (AppConfig.useMocks) {

@@ -6,24 +6,14 @@ import '../models/document_status.dart';
 import '../models/document_type.dart';
 import 'documents_datasource.dart';
 
-/// Mock em memória do backend de documentos.
-///
-/// Não é descartado na Fase 8: permanece atrás de uma flag para rodar o
-/// aplicativo sem backend e para os testes de widget.
-///
-/// Reproduz o comportamento que mais afeta a interface: o upload responde
-/// imediatamente com `uploaded` e o documento só chega a `indexed` depois de
-/// um tempo, exatamente como o pipeline real — é isso que exercita o polling.
 class DocumentsMockDatasource implements DocumentsDatasource {
   DocumentsMockDatasource({
     this.latency = const Duration(milliseconds: 400),
     this.processingTime = const Duration(seconds: 6),
   }) : _documents = List.of(_seed);
 
-  /// Atraso artificial de rede, para que os estados de carregamento apareçam.
   final Duration latency;
 
-  /// Tempo até um documento recém-enviado ficar indexado.
   final Duration processingTime;
 
   final List<Document> _documents;
@@ -39,7 +29,7 @@ class DocumentsMockDatasource implements DocumentsDatasource {
   @override
   Future<List<Document>> list() async {
     await Future<void>.delayed(latency);
-    // O backend ordena por data de criação, mais recente primeiro.
+
     return List.unmodifiable(
       _documents.toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
     );
@@ -93,11 +83,10 @@ class DocumentsMockDatasource implements DocumentsDatasource {
   @override
   Future<String> downloadUrl(String id) async {
     await Future<void>.delayed(latency);
-    // Sem backend não há PDF real; a Fase 7 trata a ausência de arquivo.
+
     return 'mock://documents/$id.pdf';
   }
 
-  /// Simula o pipeline: `uploaded` → `processing` → `indexed`.
   void _scheduleProcessing(String id) {
     final half = processingTime ~/ 2;
 
@@ -132,8 +121,6 @@ class DocumentsMockDatasource implements DocumentsDatasource {
   }
 }
 
-/// Documentos iniciais — nomes e tipos coerentes com o domínio jurídico, em
-/// vez dos genéricos do desenho.
 final _seed = <Document>[
   Document(
     id: 'doc-contrato-locacao',

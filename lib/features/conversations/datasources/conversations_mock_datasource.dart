@@ -4,12 +4,6 @@ import '../../chat/models/source.dart';
 import '../models/conversation.dart';
 import 'conversations_datasource.dart';
 
-/// Mock em memória do backend de conversas.
-///
-/// As respostas são escolhidas por palavra-chave. Inclui deliberadamente o
-/// caso em que nada passa do limiar de similaridade — é o comportamento que
-/// mais importa acertar no domínio jurídico, e o que costuma ficar de fora
-/// dos mocks otimistas.
 class ConversationsMockDatasource implements ConversationsDatasource {
   ConversationsMockDatasource({
     this.latency = const Duration(milliseconds: 400),
@@ -18,7 +12,6 @@ class ConversationsMockDatasource implements ConversationsDatasource {
 
   final Duration latency;
 
-  /// Tempo até a resposta do assistente — exercita o indicador de digitação.
   final Duration thinkingTime;
 
   final _conversations = <Conversation>[];
@@ -41,8 +34,7 @@ class ConversationsMockDatasource implements ConversationsDatasource {
     final now = DateTime.now();
     final conversation = Conversation(
       id: 'conv-${now.microsecondsSinceEpoch}',
-      // O backend gera o título a partir da primeira pergunta; até lá, este
-      // provisório aparece no histórico.
+
       title: title ?? 'Nova conversa',
       createdAt: now,
       updatedAt: now,
@@ -83,7 +75,6 @@ class ConversationsMockDatasource implements ConversationsDatasource {
       ),
     );
 
-    // Primeira pergunta define o título, como no backend.
     final index = _conversations.indexWhere((c) => c.id == conversationId);
     if (index != -1 && history.length == 1) {
       _conversations[index] = _conversations[index].copyWith(
@@ -173,8 +164,7 @@ class ConversationsMockDatasource implements ConversationsDatasource {
           ),
         ],
       ),
-      // Caso decisivo: nada passou do SIMILARITY_THRESHOLD (0,50). O
-      // assistente diz que não encontrou, em vez de inventar.
+
       _ => (
         'Não encontrei essa informação nos documentos enviados. Tente '
             'reformular a pergunta ou envie o documento que a contenha.',

@@ -4,12 +4,6 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-/// Header branco com a barra dourada de 4×22 à esquerda, título, subtítulo
-/// opcional e ação à direita. Presente nas três telas internas.
-///
-/// O design especifica `padding-top: 62px` contando a status bar do iPhone;
-/// aqui usamos o inset real do dispositivo + 12, para não desalinhar em
-/// aparelhos sem notch.
 class AppHeader extends StatelessWidget {
   const AppHeader({
     super.key,
@@ -23,7 +17,6 @@ class AppHeader extends StatelessWidget {
   final String? subtitle;
   final Widget? action;
 
-  /// Conteúdo extra abaixo da linha do título (ex.: campo de busca).
   final Widget? bottom;
 
   @override

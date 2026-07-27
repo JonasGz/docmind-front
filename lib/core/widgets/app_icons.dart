@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Os ícones do design são traços de 24×24 no estilo Lucide/Feather.
-/// Os equivalentes `Icons.*_outlined` do Material cobrem quase todos; os que
-/// não têm equivalente próximo (documento com check, sparkle) são desenhados
-/// abaixo a partir do mesmo path SVG do design.
 abstract final class AppIcons {
   static const chat = Icons.chat_bubble_outline;
   static const document = Icons.insert_drive_file_outlined;
@@ -21,9 +17,6 @@ abstract final class AppIcons {
   static const language = Icons.language;
 }
 
-/// Documento com check — ícone do app no login.
-/// Path: M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z
-///       M14 2v6h6  M9.5 13.5l1.5 1.5 3.5-3.5
 class DocumentCheckIcon extends StatelessWidget {
   const DocumentCheckIcon({super.key, required this.size, required this.color});
 
@@ -54,7 +47,6 @@ class _DocumentCheckPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
-    // Corpo da folha com o canto dobrado.
     final body = Path()
       ..moveTo(14 * s, 2 * s)
       ..lineTo(6 * s, 2 * s)
@@ -67,7 +59,6 @@ class _DocumentCheckPainter extends CustomPainter {
       ..close();
     canvas.drawPath(body, paint);
 
-    // Dobra do canto.
     canvas.drawPath(
       Path()
         ..moveTo(14 * s, 2 * s)
@@ -76,7 +67,6 @@ class _DocumentCheckPainter extends CustomPainter {
       paint,
     );
 
-    // Check.
     canvas.drawPath(
       Path()
         ..moveTo(9.5 * s, 13.5 * s)
@@ -90,8 +80,6 @@ class _DocumentCheckPainter extends CustomPainter {
   bool shouldRepaint(_DocumentCheckPainter old) => old.color != color;
 }
 
-/// Sparkle de 4 pontas — avatar do bot no chat.
-/// Path: M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z
 class SparkleIcon extends StatelessWidget {
   const SparkleIcon({super.key, required this.size, required this.color});
 
@@ -141,7 +129,6 @@ class _SparklePainter extends CustomPainter {
   bool shouldRepaint(_SparklePainter old) => old.color != color;
 }
 
-/// Logo colorido do Google, para o botão de sign-in.
 class GoogleLogo extends StatelessWidget {
   const GoogleLogo({super.key, this.size = 19});
 
@@ -175,12 +162,11 @@ class _GoogleLogoPainter extends CustomPainter {
       );
     }
 
-    arc(-150, 120, const Color(0xFFEA4335)); // vermelho, topo
-    arc(-30, 90, const Color(0xFF4285F4)); // azul, direita
-    arc(60, 90, const Color(0xFF34A853)); // verde, base
-    arc(150, 60, const Color(0xFFFBBC05)); // amarelo, esquerda
+    arc(-150, 120, const Color(0xFFEA4335));
+    arc(-30, 90, const Color(0xFF4285F4));
+    arc(60, 90, const Color(0xFF34A853));
+    arc(150, 60, const Color(0xFFFBBC05));
 
-    // Barra horizontal do "G".
     canvas.drawRect(
       Rect.fromLTRB(24 * s, 19 * s, 41 * s, 29 * s),
       Paint()..color = const Color(0xFF4285F4),

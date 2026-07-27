@@ -3,8 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'preferences_provider.g.dart';
 
-/// Preferências locais de exibição. Não vão para o backend — ele sempre
-/// retorna as fontes; o que muda é se a tela as mostra.
 @Riverpod(keepAlive: true)
 class CiteSourcesPreference extends _$CiteSourcesPreference {
   static const _key = 'cite_sources';

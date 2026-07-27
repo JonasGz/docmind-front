@@ -6,7 +6,6 @@ import '../models/message_role.dart';
 
 part 'chat_viewmodel.g.dart';
 
-/// Estado da conversa aberta na aba Chat.
 class ChatState {
   const ChatState({
     this.conversationId,
@@ -15,18 +14,12 @@ class ChatState {
     this.sendError,
   });
 
-  /// Nulo enquanto a conversa não foi criada no backend. A criação é
-  /// preguiçosa: `POST /conversations` só acontece no primeiro envio, senão o
-  /// histórico encheria de conversas vazias a cada abertura da aba.
   final String? conversationId;
 
   final List<Message> messages;
 
-  /// Verdadeiro entre o envio e a resposta — o envio é bloqueante, sem
-  /// streaming no v1.
   final bool isAwaitingAnswer;
 
-  /// Falha do último envio, para oferecer nova tentativa sem perder o texto.
   final Object? sendError;
 
   bool get isEmpty => messages.isEmpty;
@@ -53,7 +46,6 @@ class ChatViewModel extends _$ChatViewModel {
   @override
   ChatState build() => const ChatState();
 
-  /// Abre uma conversa existente, vinda do histórico.
   Future<void> openConversation(String conversationId) async {
     state = ChatState(conversationId: conversationId);
 
@@ -64,7 +56,6 @@ class ChatViewModel extends _$ChatViewModel {
     state = state.copyWith(messages: messages);
   }
 
-  /// Descarta a conversa atual. A próxima mensagem cria uma nova.
   void startNewConversation() => state = const ChatState();
 
   Future<void> send(String content) async {
@@ -73,7 +64,6 @@ class ChatViewModel extends _$ChatViewModel {
 
     final repository = ref.read(conversationsRepositoryProvider);
 
-    // A pergunta aparece na hora, antes da ida ao servidor.
     final pending = Message(
       id: 'local-${DateTime.now().microsecondsSinceEpoch}',
       role: MessageRole.user,
@@ -103,8 +93,6 @@ class ChatViewModel extends _$ChatViewModel {
         isAwaitingAnswer: false,
       );
     } on Object catch (error) {
-      // Remove a pergunta otimista e devolve o erro, para que a tela possa
-      // oferecer nova tentativa com o texto preservado.
       state = state.copyWith(
         messages: state.messages.where((m) => m.id != pending.id).toList(),
         isAwaitingAnswer: false,

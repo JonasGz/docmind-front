@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// Botão de ícone circular de 44px (38px no header do chat).
-///
-/// Variantes do design system: fundo blue-900 → gold-500 no press;
-/// fundo gold-500 → gold-300; ou outline branco com borda gray-200.
 class AppIconButton extends StatefulWidget {
   const AppIconButton.primary({
     super.key,

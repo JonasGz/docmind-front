@@ -8,8 +8,6 @@ import 'package:docmind/features/documents/models/document_status.dart';
 import 'package:docmind/features/documents/models/document_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Os JSONs abaixo são o que o FastAPI realmente devolve: snake_case,
-/// datas ISO 8601 com offset, UUIDs como string, enums em minúsculas.
 void main() {
   group('Document', () {
     test('faz parse de um documento indexado', () {
@@ -37,8 +35,6 @@ void main() {
     });
 
     test('faz parse logo após o upload, quando quase tudo é nulo', () {
-      // O POST /documents responde 202 antes de processar: neste momento o
-      // backend só tem id, filename, status e datas.
       final doc = Document.fromJson({
         'id': '11111111-2222-3333-4444-555555555555',
         'filename': 'Peticao_Inicial.pdf',
@@ -56,7 +52,7 @@ void main() {
 
       expect(doc.status.isPending, isTrue);
       expect(doc.docType, isNull);
-      // Sem título extraído, cai no nome do arquivo.
+
       expect(doc.displayName, 'Peticao_Inicial.pdf');
     });
 
@@ -81,8 +77,6 @@ void main() {
     });
 
     test('status ou tipo desconhecido não derruba o parse', () {
-      // Se o backend ganhar uma categoria nova, a lista do usuário continua
-      // abrindo em vez de estourar exceção.
       final doc = Document.fromJson({
         'id': 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
         'filename': 'Novidade.pdf',
@@ -167,8 +161,6 @@ void main() {
     });
 
     test('resposta sem base nos documentos vem com sources vazio', () {
-      // Quando nada passa do SIMILARITY_THRESHOLD, o backend responde que
-      // não encontrou base — e a lista vem vazia, não nula.
       final message = Message.fromJson({
         'id': 'dddddddd-eeee-ffff-0000-111111111111',
         'role': 'assistant',

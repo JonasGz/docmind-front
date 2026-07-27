@@ -16,14 +16,6 @@ import '../../auth/providers/auth_providers.dart';
 import '../providers/preferences_provider.dart';
 import '../widgets/profile_card.dart';
 
-/// Ajustes.
-///
-/// Enxuto em relação ao desenho: "Plano Pro", notificações, tema escuro,
-/// estilo e idioma das respostas, e "Privacidade e dados" não existem no
-/// backend e foram removidos. Interface que promete o que o sistema não faz
-/// é dívida que ninguém remove.
-///
-/// Sobrou o que tem efeito real: perfil, citação de fontes e sair da conta.
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -133,7 +125,6 @@ class _ProfileSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (user case final user?) {
-      // Sem badge: o backend não tem planos.
       return ProfileCard(
         initials: user.initials,
         name: user.displayName,

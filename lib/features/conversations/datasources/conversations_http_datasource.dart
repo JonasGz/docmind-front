@@ -22,7 +22,7 @@ class ConversationsHttpDatasource implements ConversationsDatasource {
   Future<Conversation> create({String? title}) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/conversations',
-      // Título nulo: quem o gera é o backend, a partir da primeira pergunta.
+
       data: {'title': title},
     );
     return Conversation.fromJson(response.data!);

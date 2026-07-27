@@ -11,11 +11,6 @@ import '../../../core/widgets/app_icons.dart';
 import '../providers/auth_providers.dart';
 import '../services/google_sign_in_service.dart';
 
-/// Tela de login.
-///
-/// Fase 1: maquete estática com os textos literais do design. Os botões não
-/// fazem nada ainda — o Google Sign-In entra na Fase 9 e o "Entrar com e-mail"
-/// abre um sheet "em breve" (decisão Q4).
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -33,8 +28,6 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-/// Metade superior: gradiente 165° de blue-900 a blue-700, ícone do app,
-/// wordmark "DocMind", régua dourada e o subtítulo.
 class _Hero extends StatelessWidget {
   const _Hero();
 
@@ -44,15 +37,13 @@ class _Hero extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          // 165° em CSS ≈ do topo levemente à esquerda para a base à direita.
           begin: Alignment(-0.26, -1),
           end: Alignment(0.26, 1),
           colors: [AppColors.blue900, AppColors.blue700],
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      // Em altura normal o bloco fica centralizado; em janelas baixas
-      // (paisagem, tela dividida) ele rola em vez de estourar.
+
       child: LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(
           child: ConstrainedBox(
@@ -61,7 +52,6 @@ class _Hero extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Squircle com borda dourada translúcida.
                 Container(
                   width: 76,
                   height: 76,
@@ -80,7 +70,7 @@ class _Hero extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-                // "Doc" em 600 branco + "Mind" em 300 dourado.
+
                 Text.rich(
                   TextSpan(
                     children: [
@@ -127,7 +117,6 @@ class _Hero extends StatelessWidget {
   }
 }
 
-/// Sheet branco com radius 22 no topo, sombra ascendente e os dois botões.
 class _SignInSheet extends ConsumerStatefulWidget {
   const _SignInSheet();
 
@@ -143,7 +132,7 @@ class _SignInSheetState extends ConsumerState<_SignInSheet> {
 
     try {
       final idToken = await ref.read(googleSignInServiceProvider).signIn();
-      // Cancelado pelo usuário: volta ao estado inicial, sem erro.
+
       if (idToken == null) return;
 
       await ref.read(authViewModelProvider.notifier).signInWithGoogle(idToken);
@@ -171,8 +160,6 @@ class _SignInSheetState extends ConsumerState<_SignInSheet> {
     );
   }
 
-  /// O botão existe no design mas o backend só autentica via Google. Em vez
-  /// de removê-lo, ele explica que ainda não está disponível (decisão Q4).
   void _showEmailComingSoon(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
@@ -234,8 +221,6 @@ class _SignInSheetState extends ConsumerState<_SignInSheet> {
       ),
       child: Center(
         child: ConstrainedBox(
-          // Impede o conteúdo de esticar em janelas largas (skill de
-          // layout responsivo).
           constraints: const BoxConstraints(maxWidth: 480),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -307,8 +292,6 @@ class _OrDivider extends StatelessWidget {
   }
 }
 
-/// "Ao continuar, você concorda com os Termos de Uso e a Política de
-/// Privacidade." — os dois links sublinhados em dourado.
 class _LegalText extends StatelessWidget {
   const _LegalText();
 

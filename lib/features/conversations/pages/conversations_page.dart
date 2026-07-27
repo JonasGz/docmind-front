@@ -12,11 +12,6 @@ import '../../chat/viewmodels/chat_viewmodel.dart';
 import '../models/conversation.dart';
 import '../viewmodels/conversations_viewmodel.dart';
 
-/// Histórico de conversas, empilhado sobre a aba Chat.
-///
-/// O desenho não previu esta tela — o backend a suporta e sem ela as
-/// conversas anteriores ficariam inalcançáveis. Montada com os componentes do
-/// design system.
 class ConversationsPage extends ConsumerWidget {
   const ConversationsPage({super.key});
 

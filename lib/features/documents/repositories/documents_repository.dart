@@ -3,10 +3,6 @@ import 'dart:typed_data';
 import '../datasources/documents_datasource.dart';
 import '../models/document.dart';
 
-/// Fonte única de verdade para documentos.
-///
-/// Classe concreta, sem interface abstrata: existe uma implementação só, e a
-/// variação de mock/HTTP acontece um nível abaixo, no datasource.
 class DocumentsRepository {
   const DocumentsRepository(this._datasource);
 

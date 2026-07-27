@@ -4,8 +4,6 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-/// Grupo de linhas com kicker dourado acima e cartão branco arredondado
-/// contendo as linhas separadas por hairline. Padrão da tela de Ajustes.
 class AppListGroup extends StatelessWidget {
   const AppListGroup({super.key, this.title, required this.children});
 
@@ -49,8 +47,6 @@ class AppListGroup extends StatelessWidget {
   }
 }
 
-/// Linha de 44px com ícone, label e um trailing (toggle, valor + chevron,
-/// ou nada). Usada dentro de [AppListGroup].
 class AppListRow extends StatelessWidget {
   const AppListRow({
     super.key,
@@ -66,16 +62,13 @@ class AppListRow extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  /// Widget à direita — normalmente um [AppToggle].
   final Widget? trailing;
 
-  /// Valor textual à direita, antes do chevron.
   final String? value;
 
   final bool showChevron;
   final VoidCallback? onTap;
 
-  /// Pinta ícone e label em `danger` (ex.: "Sair da conta").
   final bool destructive;
 
   @override

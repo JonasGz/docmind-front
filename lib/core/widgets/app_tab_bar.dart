@@ -5,11 +5,6 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'app_icons.dart';
 
-/// Tab bar de 3 itens. A aba ativa recebe a barra dourada 22×3 acima do ícone
-/// e pinta ícone/label em blue-900 weight 500.
-///
-/// O `NavigationBar` do Material posiciona o indicador atrás do ícone, não
-/// acima, e não tem como mover — por isso é próprio.
 class AppTabBar extends StatelessWidget {
   const AppTabBar({
     super.key,
@@ -21,8 +16,6 @@ class AppTabBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int>? onTap;
 
-  /// Limita a largura dos três itens em janelas largas, mantendo o fundo e a
-  /// borda superior atravessando a tela inteira.
   final double? maxContentWidth;
 
   static const _items = [
@@ -47,8 +40,6 @@ class AppTabBar extends StatelessWidget {
         AppSpacing.sm + bottomInset,
       ),
       child: Center(
-        // heightFactor 1 mantém a barra do tamanho do conteúdo; sem isso ela
-        // esticaria para a altura toda e o body ficaria com zero.
         heightFactor: 1,
         child: ConstrainedBox(
           constraints: BoxConstraints(

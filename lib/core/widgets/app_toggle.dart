@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_shadows.dart';
 
-/// Toggle 46×27 com knob de 23px, conforme o design system.
-///
-/// O `Switch` do Material tem proporções e animação próprias que não batem
-/// com o desenho, por isso este é próprio.
 class AppToggle extends StatelessWidget {
   const AppToggle({
     super.key,
@@ -32,7 +28,7 @@ class AppToggle extends StatelessWidget {
       toggled: value,
       child: GestureDetector(
         onTap: enabled ? () => onChanged!(!value) : null,
-        // Mantém o alvo de toque em 44px sem esticar o desenho.
+
         child: SizedBox(
           height: 44,
           width: _width,

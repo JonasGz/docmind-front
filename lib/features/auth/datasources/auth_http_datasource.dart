@@ -14,7 +14,7 @@ class AuthHttpDatasource implements AuthDatasource {
     final response = await _dio.post<Map<String, dynamic>>(
       '/auth/google',
       data: {'id_token': idToken},
-      // Ainda não há sessão: mandar Authorization aqui não faria sentido.
+
       options: Options(extra: const {'skipAuth': true}),
     );
     return TokenPair.fromJson(response.data!);

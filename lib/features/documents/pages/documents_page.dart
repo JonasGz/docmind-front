@@ -15,7 +15,6 @@ import '../widgets/document_card.dart';
 import '../widgets/documents_search_field.dart';
 import '../widgets/upload_button.dart';
 
-/// Aba de documentos: lista, busca, upload e exclusão.
 class DocumentsPage extends ConsumerStatefulWidget {
   const DocumentsPage({super.key});
 
@@ -24,8 +23,6 @@ class DocumentsPage extends ConsumerStatefulWidget {
 }
 
 class _DocumentsPageState extends ConsumerState<DocumentsPage> {
-  /// A busca é client-side: `GET /documents` não aceita parâmetro de busca e
-  /// a lista vem inteira, sem paginação.
   String _query = '';
 
   @override
@@ -86,8 +83,7 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
   Future<void> _pickAndUpload() async {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
-      // O backend aceita apenas application/pdf e responde 415 para o resto;
-      // filtrar aqui evita a viagem até o servidor.
+
       allowedExtensions: const ['pdf'],
       withData: true,
     );
@@ -155,7 +151,6 @@ class _DocumentList extends StatelessWidget {
 
   final List<Document> documents;
 
-  /// Distingue "biblioteca vazia" de "a busca não encontrou nada".
   final bool hasAny;
 
   final Future<void> Function() onUpload;

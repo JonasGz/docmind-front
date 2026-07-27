@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Datasource controlado — a seam única de teste, injetada por override.
 class _FakeDatasource implements DocumentsDatasource {
   _FakeDatasource(this.documents);
 
@@ -112,7 +111,7 @@ void main() {
     );
 
     expect(find.text('2 documentos'), findsOneWidget);
-    // Prefere o título extraído ao nome do arquivo.
+
     expect(find.text('Contrato de Locação'), findsOneWidget);
     expect(find.text('Parecer.pdf'), findsOneWidget);
   });
@@ -127,7 +126,6 @@ void main() {
   });
 
   testWidgets('não exibe tamanho de arquivo nem percentual', (tester) async {
-    // Ambos aparecem no desenho mas não existem no contrato do backend.
     await pumpDocuments(
       tester,
       _FakeDatasource([
@@ -142,7 +140,6 @@ void main() {
     expect(find.textContaining('MB'), findsNothing);
     expect(find.textContaining('%'), findsNothing);
 
-    // Barra indeterminada: sem valor definido.
     final progress = tester.widget<LinearProgressIndicator>(
       find.byType(LinearProgressIndicator),
     );
@@ -150,7 +147,6 @@ void main() {
   });
 
   testWidgets('o badge é sempre PDF', (tester) async {
-    // O backend recusa qualquer outro tipo com 415.
     await pumpDocuments(
       tester,
       _FakeDatasource([_doc(id: '1', filename: 'Documento.pdf')]),
@@ -193,24 +189,20 @@ void main() {
       ]),
     );
 
-    // Por título.
     await tester.enterText(find.byType(TextField), 'locação');
     await settle(tester);
     expect(find.text('Contrato de Locação'), findsOneWidget);
     expect(find.text('Parecer_Licitacao.pdf'), findsNothing);
 
-    // Por nome de arquivo.
     await tester.enterText(find.byType(TextField), 'parecer');
     await settle(tester);
     expect(find.text('Parecer_Licitacao.pdf'), findsOneWidget);
     expect(find.text('Contrato de Locação'), findsNothing);
 
-    // Por identificador — o número do processo é como advogado busca.
     await tester.enterText(find.byType(TextField), '0001234-56');
     await settle(tester);
     expect(find.text('Contrato de Locação'), findsOneWidget);
 
-    // Limpar devolve os dois.
     await tester.enterText(find.byType(TextField), '');
     await settle(tester);
     expect(find.text('Contrato de Locação'), findsOneWidget);
@@ -237,7 +229,6 @@ void main() {
       reason: 'com documento pendente o polling deve continuar consultando',
     );
 
-    // O documento fica pronto: o polling precisa parar.
     datasource.documents = [_doc(id: '1', filename: 'Processando.pdf')];
     await tester.pump(const Duration(seconds: 2));
     await tester.pump();

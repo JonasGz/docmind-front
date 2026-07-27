@@ -8,7 +8,6 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_icon_button.dart';
 import '../../../core/widgets/app_icons.dart';
 
-/// Barra de composição: anexar, campo pill e enviar.
 class ChatComposer extends StatefulWidget {
   const ChatComposer({
     super.key,
@@ -20,7 +19,6 @@ class ChatComposer extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
 
-  /// Falso enquanto a resposta anterior não chegou — o envio é bloqueante.
   final bool enabled;
 
   @override
@@ -31,7 +29,7 @@ class _ChatComposerState extends State<ChatComposer> {
   @override
   void initState() {
     super.initState();
-    // Reconstrói para habilitar/desabilitar o botão conforme o texto.
+
     widget.controller.addListener(_onTextChanged);
   }
 
@@ -63,8 +61,7 @@ class _ChatComposerState extends State<ChatComposer> {
           AppIconButton.outline(
             icon: AppIcons.attach,
             semanticLabel: 'Anexar documento',
-            // O upload vive na aba Documentos; aqui o botão leva até lá em
-            // vez de duplicar o fluxo.
+
             onPressed: widget.enabled
                 ? () => context.go(Routes.documents)
                 : null,

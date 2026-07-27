@@ -48,7 +48,6 @@ void main() {
         bytes: Uint8List(0),
       );
 
-      // O backend responde 202 antes de processar.
       expect(uploaded.status, DocumentStatus.uploaded);
       expect(uploaded.pageCount, isNull);
 
@@ -82,7 +81,7 @@ void main() {
         (await datasource.list()).where((d) => d.id == uploaded.id),
         isEmpty,
       );
-      // O timer pendente não pode ressuscitar o documento removido.
+
       await Future<void>.delayed(const Duration(milliseconds: 60));
       expect(
         (await datasource.list()).where((d) => d.id == uploaded.id),
@@ -127,7 +126,7 @@ void main() {
       expect(answer.role, MessageRole.assistant);
       expect(answer.hasSources, isTrue);
       expect(answer.sources!.first.page, 4);
-      // As fontes vêm ordenadas por relevância.
+
       expect(
         answer.sources!.first.score,
         greaterThan(answer.sources!.last.score),
@@ -135,8 +134,6 @@ void main() {
     });
 
     test('admite não saber quando nada bate com os documentos', () async {
-      // O caso que mais importa no domínio jurídico: sem base, o assistente
-      // diz que não encontrou em vez de inventar uma resposta.
       final datasource = build();
       final conversation = await datasource.create();
 

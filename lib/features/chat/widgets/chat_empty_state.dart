@@ -5,14 +5,9 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import 'bot_avatar.dart';
 
-/// Saudação inicial do assistente.
-///
-/// É texto de interface, não uma mensagem persistida: o backend não guarda
-/// saudação, e enviá-la sujaria o histórico da conversa.
 class ChatEmptyState extends StatelessWidget {
   const ChatEmptyState({super.key, required this.indexedCount});
 
-  /// Quantos documentos estão indexados — muda o que faz sentido sugerir.
   final int indexedCount;
 
   @override

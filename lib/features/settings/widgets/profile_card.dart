@@ -4,8 +4,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
-/// Card de perfil em destaque: fundo blue-900, avatar circular com iniciais
-/// douradas, nome, e-mail e badge opcional.
 class ProfileCard extends StatelessWidget {
   const ProfileCard({
     super.key,
@@ -20,8 +18,6 @@ class ProfileCard extends StatelessWidget {
   final String name;
   final String email;
 
-  /// "Plano Pro" no design — o backend não tem planos, então a Fase 6
-  /// não passa este parâmetro.
   final String? badge;
 
   final VoidCallback? onTap;

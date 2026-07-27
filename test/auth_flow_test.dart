@@ -54,7 +54,6 @@ void main() {
   });
 
   test('tokens inválidos são descartados em vez de virar erro', () async {
-    // O usuário deve cair na tela de login, não numa tela de erro.
     final storage = InMemoryTokenStorage();
     await storage.write(
       const TokenPair(accessToken: 'velho', refreshToken: 'velho'),

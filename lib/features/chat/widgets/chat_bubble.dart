@@ -12,7 +12,6 @@ import '../models/source.dart';
 import 'bot_avatar.dart';
 import 'source_detail_sheet.dart';
 
-/// Canto de origem em 2px; os outros três em 8px.
 const _bubbleRadius = BorderRadius.only(
   topLeft: Radius.circular(2),
   topRight: Radius.circular(AppRadius.md),
@@ -20,12 +19,6 @@ const _bubbleRadius = BorderRadius.only(
   bottomRight: Radius.circular(AppRadius.md),
 );
 
-/// Bolha do assistente, com um chip por fonte citada.
-///
-/// Todas as fontes viram chip, até o `RETRIEVAL_TOP_K` do backend (cinco).
-/// Mostrar só a de maior score esconderia quatro de cinco e contrariaria o
-/// próprio ponto do produto: atribuir cada afirmação à sua origem e deixar
-/// divergências entre documentos visíveis.
 class BotBubble extends StatelessWidget {
   const BotBubble({super.key, required this.text, this.sources = const []});
 
@@ -50,8 +43,6 @@ class BotBubble extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // A barra dourada de 3px é uma faixa separada: o Flutter
-                  // não pinta borderRadius sobre bordas de cores diferentes.
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.white,
@@ -105,8 +96,6 @@ class BotBubble extends StatelessWidget {
   }
 }
 
-/// Toque abre o PDF na página citada; toque longo mostra o trecho e o score
-/// sem sair da conversa.
 class _SourceChip extends StatelessWidget {
   const _SourceChip({required this.source});
 
@@ -128,7 +117,6 @@ class _SourceChip extends StatelessWidget {
   }
 }
 
-/// Bolha do usuário: blue-900, canto de origem em 2px à direita.
 class UserBubble extends StatelessWidget {
   const UserBubble({super.key, required this.text});
 

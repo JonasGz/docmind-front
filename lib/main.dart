@@ -12,8 +12,6 @@ void main() {
 class DocMindApp extends ConsumerWidget {
   const DocMindApp({super.key, this.router});
 
-  /// Injetável para que cada teste use um router próprio, sem a guarda de
-  /// sessão.
   final GoRouter? router;
 
   @override

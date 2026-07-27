@@ -7,11 +7,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../models/source.dart';
 
-/// Detalhe de uma fonte citada: o trecho recuperado e a similaridade.
-///
-/// O score é exibido porque em matéria jurídica a diferença entre uma
-/// citação forte e uma marginal muda o peso do que se afirma. Escondê-lo
-/// deixaria o usuário sem como calibrar a confiança na resposta.
 Future<void> showSourceDetail(BuildContext context, Source source) {
   return showModalBottomSheet<void>(
     context: context,
@@ -49,8 +44,7 @@ class _SourceDetailSheet extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(source.documentTitle, style: AppTypography.sectionTitle),
             const SizedBox(height: AppSpacing.xs),
-            // Wrap, não Row: com título longo e rótulo de relevância a linha
-            // não cabe em telas estreitas.
+
             Wrap(
               spacing: AppSpacing.md,
               runSpacing: AppSpacing.xs,
@@ -94,7 +88,6 @@ class _SourceDetailSheet extends StatelessWidget {
   }
 }
 
-/// Traduz o score em algo interpretável, mantendo o número visível.
 class _RelevanceLabel extends StatelessWidget {
   const _RelevanceLabel({required this.score});
 
@@ -102,8 +95,6 @@ class _RelevanceLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // O backend descarta abaixo de 0,50 (SIMILARITY_THRESHOLD), então tudo
-    // que chega aqui já passou do corte.
     final (label, color) = switch (score) {
       >= 0.80 => ('alta correspondência', AppColors.success),
       >= 0.65 => ('correspondência média', AppColors.gold500),

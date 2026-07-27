@@ -24,7 +24,6 @@ AuthRepository authRepository(Ref ref) => AuthRepository(
   ref.watch(tokenStorageProvider),
 );
 
-/// Sessão atual. Nulo significa deslogado.
 @Riverpod(keepAlive: true)
 class AuthViewModel extends _$AuthViewModel {
   @override
@@ -43,6 +42,5 @@ class AuthViewModel extends _$AuthViewModel {
   }
 }
 
-/// Usuário logado, para as telas que só precisam do perfil.
 @Riverpod(keepAlive: true)
 AsyncValue<User?> currentUser(Ref ref) => ref.watch(authViewModelProvider);

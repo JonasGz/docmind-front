@@ -9,13 +9,6 @@ import '../providers/documents_providers.dart';
 
 part 'documents_viewmodel.g.dart';
 
-/// Lista de documentos do usuário, com polling enquanto houver documento em
-/// processamento.
-///
-/// É global (`keepAlive`), e não atrelado à tela: o subtítulo do chat
-/// ("N documentos no contexto") consome o mesmo estado, e um upload iniciado
-/// na aba Documentos precisa continuar sendo acompanhado depois que o usuário
-/// troca de aba.
 @Riverpod(keepAlive: true)
 class DocumentsViewModel extends _$DocumentsViewModel {
   static const _pollInterval = Duration(seconds: 2);
@@ -32,8 +25,6 @@ class DocumentsViewModel extends _$DocumentsViewModel {
 
     _lifecycle ??= _LifecycleWatcher(
       onResume: () {
-        // Ao voltar do segundo plano, consulta imediatamente em vez de
-        // esperar o próximo ciclo.
         unawaited(refresh());
       },
       onPause: _stopPolling,
@@ -44,15 +35,12 @@ class DocumentsViewModel extends _$DocumentsViewModel {
     return documents;
   }
 
-  /// Recarrega sem passar por estado de carregamento — usado pelo polling e
-  /// pelo pull-to-refresh, onde piscar a tela seria pior que esperar.
   Future<void> refresh() async {
     try {
       final documents = await ref.read(documentsRepositoryProvider).list();
       state = AsyncData(documents);
       _syncPolling(documents);
     } on Object catch (error, stack) {
-      // Uma falha isolada de polling não pode apagar a lista já exibida.
       if (!state.hasValue) state = AsyncError(error, stack);
     }
   }
@@ -72,7 +60,6 @@ class DocumentsViewModel extends _$DocumentsViewModel {
   Future<void> delete(String id) async {
     final previous = state.value ?? const <Document>[];
 
-    // Remoção otimista: a lista responde na hora e volta atrás se falhar.
     state = AsyncData(previous.where((d) => d.id != id).toList());
 
     try {
@@ -84,8 +71,6 @@ class DocumentsViewModel extends _$DocumentsViewModel {
     }
   }
 
-  /// Liga o polling quando há documento pendente e desliga quando não há —
-  /// sem isso o temporizador viveria para sempre consultando à toa.
   void _syncPolling(List<Document> documents) {
     final hasPending = documents.any((d) => d.status.isPending);
 
@@ -103,14 +88,12 @@ class DocumentsViewModel extends _$DocumentsViewModel {
   }
 }
 
-/// Quantidade de documentos indexados — o que o chat pode citar.
 @riverpod
 int indexedDocumentCount(Ref ref) {
   final documents = ref.watch(documentsViewModelProvider).value;
   return documents?.where((d) => d.status.isReady).length ?? 0;
 }
 
-/// Observa segundo plano/retorno do aplicativo para pausar o polling.
 class _LifecycleWatcher with WidgetsBindingObserver {
   _LifecycleWatcher({required this.onResume, required this.onPause}) {
     WidgetsBinding.instance.addObserver(this);

@@ -10,8 +10,6 @@ import 'package:docmind/features/documents/models/document.dart';
 import 'package:docmind/features/documents/models/document_status.dart';
 import 'package:docmind/features/documents/models/document_type.dart';
 
-/// Datasources controlados — a seam única de teste, injetada por override.
-
 Document indexedDoc(
   String id, {
   String filename = 'Documento.pdf',
@@ -95,8 +93,6 @@ class FakeConversationsDatasource implements ConversationsDatasource {
 
   Duration answerDelay;
 
-  /// Falso simula a resposta sem base documental — nada passou do limiar de
-  /// similaridade.
   bool withSources;
 
   List<Conversation> conversations;

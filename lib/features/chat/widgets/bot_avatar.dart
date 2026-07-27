@@ -4,8 +4,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_icons.dart';
 
-/// Quadrado 30×30 blue-900 com o sparkle dourado, à esquerda das mensagens
-/// do assistente.
 class BotAvatar extends StatelessWidget {
   const BotAvatar({super.key});
 

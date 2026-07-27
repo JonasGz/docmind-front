@@ -6,12 +6,6 @@ import 'source.dart';
 part 'message.freezed.dart';
 part 'message.g.dart';
 
-/// Espelha `MessageResponse` do backend (`app/schemas/conversation.py`).
-///
-/// `sources` só vem preenchido em mensagens do assistente, e ainda assim
-/// pode ser nulo ou vazio quando nenhum trecho passou do limiar de
-/// similaridade — caso em que o backend responde que não encontrou base nos
-/// documentos.
 @freezed
 abstract class Message with _$Message {
   const factory Message({

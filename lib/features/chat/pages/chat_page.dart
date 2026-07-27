@@ -103,8 +103,6 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     );
   }
 
-  /// O subtítulo consome o mesmo provider global da aba Documentos, sem
-  /// buscar nada por conta própria.
   String _contextLabel(int count) => switch (count) {
     0 => 'nenhum documento no contexto',
     1 => '1 documento no contexto',
@@ -191,8 +189,6 @@ class _MessageList extends StatelessWidget {
   }
 }
 
-/// Texto de apoio quando não há mensagens — a saudação do desenho não é
-/// persistida pela API, então vive só na interface.
 class ChatEmptyStateText extends StatelessWidget {
   const ChatEmptyStateText({super.key});
 

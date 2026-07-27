@@ -4,8 +4,6 @@ import '../theme/app_colors.dart';
 import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 
-/// Card branco com borda gray-200, radius 8 e shadow-sm.
-/// A borda vira gold-500 no press, quando há `onTap`.
 class AppCard extends StatefulWidget {
   const AppCard({
     super.key,

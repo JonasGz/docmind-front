@@ -9,12 +9,6 @@ import '../../../core/widgets/app_chip.dart';
 import '../models/document.dart';
 import '../models/document_status.dart';
 
-/// Card de documento na biblioteca.
-///
-/// Difere do desenho em três pontos, todos por ausência no contrato do
-/// backend: não há tamanho de arquivo, não há percentual de progresso (a
-/// barra é indeterminada) e o badge é sempre PDF, já que o backend recusa
-/// qualquer outro tipo com 415.
 class DocumentCard extends StatelessWidget {
   const DocumentCard({
     super.key,
@@ -37,8 +31,7 @@ class DocumentCard extends StatelessWidget {
       background: const _DeleteBackground(),
       confirmDismiss: (_) async {
         onDelete?.call();
-        // A confirmação e a remoção são responsabilidade da página; o card
-        // nunca some sozinho.
+
         return false;
       },
       child: AppCard(
@@ -87,9 +80,6 @@ class DocumentCard extends StatelessWidget {
     );
   }
 
-  /// "12 páginas · há 2 dias" — sem o tamanho do arquivo do desenho, que o
-  /// backend não fornece. Antes da indexação nem a contagem de páginas
-  /// existe.
   String get _metaLine {
     final parts = <String>[
       if (document.pageCount case final pages?)
@@ -157,8 +147,6 @@ class _StatusIndicator extends StatelessWidget {
   }
 }
 
-/// Barra indeterminada: o backend expõe `status`, não percentual, então o
-/// `64%` do desenho não tem como ser honrado.
 class _IndeterminateProgress extends StatelessWidget {
   const _IndeterminateProgress();
 

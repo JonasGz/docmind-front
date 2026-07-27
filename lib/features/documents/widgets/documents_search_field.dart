@@ -5,8 +5,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_icons.dart';
 
-/// Campo de busca da biblioteca. Filtra em memória — o backend não expõe
-/// parâmetro de busca em `GET /documents`.
 class DocumentsSearchField extends StatefulWidget {
   const DocumentsSearchField({super.key, required this.onChanged});
 

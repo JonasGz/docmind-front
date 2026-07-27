@@ -5,13 +5,6 @@ import 'package:dio/dio.dart';
 import '../models/token_pair.dart';
 import '../services/token_storage.dart';
 
-/// Injeta o access token e renova a sessão quando ele expira.
-///
-/// A renovação é **single-flight**: se várias requisições receberem 401 ao
-/// mesmo tempo, apenas uma chama `POST /auth/refresh` e as demais aguardam o
-/// resultado dela. Sem isso o polling de documentos a cada dois segundos
-/// dispararia várias renovações simultâneas — e a maioria falharia, porque o
-/// backend invalida o refresh token a cada uso.
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({
     required this.storage,
@@ -21,15 +14,10 @@ class AuthInterceptor extends Interceptor {
 
   final TokenStorage storage;
 
-  /// Dio separado, sem este interceptor: renovar usando o cliente
-  /// interceptado entraria em recursão no primeiro 401.
   final Dio refreshClient;
 
-  /// Chamado quando a renovação falha — a sessão acabou de verdade.
   final Future<void> Function() onSessionExpired;
 
-  /// A renovação em andamento, se houver. É o que torna o fluxo
-  /// single-flight.
   Future<TokenPair?>? _refreshInFlight;
 
   @override
@@ -69,7 +57,6 @@ class AuthInterceptor extends Interceptor {
     }
 
     try {
-      // Repete a requisição original com o token novo.
       final options = err.requestOptions
         ..extra['retried'] = true
         ..headers['Authorization'] = 'Bearer ${tokens.accessToken}';
@@ -82,7 +69,6 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<TokenPair?> _refresh() {
-    // Se já há uma renovação em curso, aguarda aquela em vez de abrir outra.
     return _refreshInFlight ??= _performRefresh().whenComplete(() {
       _refreshInFlight = null;
     });

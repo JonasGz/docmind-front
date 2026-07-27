@@ -5,9 +5,6 @@ import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
-/// Tema Material configurado com os tokens do design system, para que os
-/// widgets nativos (botões, inputs, divisores) já saiam corretos sem estilo
-/// por chamada. O que o Material não cobre vive em core/widgets.
 abstract final class AppTheme {
   static ThemeData get light {
     final colorScheme =
@@ -40,7 +37,6 @@ abstract final class AppTheme {
       ),
       splashFactory: InkRipple.splashFactory,
 
-      // Primário: fundo blue-900, texto branco, hover/pressed blue-700.
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -73,7 +69,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      // Google/outline: fundo branco, borda gray-200 → gold-500 no hover.
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -105,7 +100,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      // Input: gray-100 com borda gray-200; foco vira branco com borda gold.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.screenBackground,
@@ -128,7 +122,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      // Foco visível dourado, exigido pelo design system.
       focusColor: AppColors.gold500,
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: AppColors.blue900,

@@ -1,8 +1,3 @@
-/// Tempo relativo em português, no formato do design: "agora", "há 2 dias",
-/// "há 1 semana".
-///
-/// O backend devolve datas em UTC; a conversão para local acontece aqui, na
-/// exibição.
 String relativeTime(DateTime timestamp, {DateTime? now}) {
   final reference = now ?? DateTime.now();
   final elapsed = reference.difference(timestamp.toLocal());

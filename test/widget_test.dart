@@ -8,25 +8,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
-  // 390×844 é o iPhone do design; 1200×900 cobre janela larga (a skill de
-  // layout responsivo proíbe assumir tamanho de dispositivo); 800×600 é o
-  // caso baixo, onde o login precisa rolar em vez de estourar.
   const viewports = [
     ('iPhone 390×844', Size(390, 844)),
     ('janela larga 1200×900', Size(1200, 900)),
     ('janela baixa 800×600', Size(800, 600)),
   ];
 
-  // pump fixo em vez de pumpAndSettle: o indicador de digitação anima em loop
-  // e nunca assentaria. 1,2s cobre a transição de página do go_router.
   Future<void> settle(WidgetTester tester) async {
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 200));
     }
   }
 
-  /// Router próprio por teste — o global guardaria a rota de um teste para o
-  /// seguinte.
   Future<GoRouter> pumpApp(WidgetTester tester, Size size) async {
     await tester.binding.setSurfaceSize(size);
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -62,8 +55,6 @@ void main() {
     });
   }
 
-  // O IndexedStack do shell mantém as abas inativas montadas, apenas
-  // offstage — sem isto os finders acham o widget da aba errada.
   Finder tab(String label) =>
       find.descendant(of: find.byType(AppTabBar), matching: find.text(label));
 
@@ -74,14 +65,12 @@ void main() {
 
     expect(find.textContaining('no contexto'), findsOneWidget);
 
-    // Digita no chat — é o estado que precisa sobreviver à troca de aba.
     await tester.enterText(find.byType(TextField), 'pergunta em rascunho');
     await settle(tester);
 
     await tester.tap(tab('Documentos'));
     await settle(tester);
-    // O cabeçalho passou a "N documentos": o backend não expõe o tamanho
-    // total que o desenho mostrava.
+
     expect(find.textContaining('documento'), findsWidgets);
 
     await tester.tap(tab('Ajustes'));
@@ -106,7 +95,6 @@ void main() {
     await settle(tester);
     expect(find.text('Conversas'), findsWidgets);
 
-    // Empilhada sobre a aba, cobrindo a tab bar — e não uma quarta aba.
     expect(tab('Chat'), findsNothing);
 
     await tester.tap(find.byIcon(Icons.close));

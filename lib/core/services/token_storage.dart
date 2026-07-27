@@ -8,8 +8,6 @@ abstract interface class TokenStorage {
   Future<void> clear();
 }
 
-/// Armazenamento seguro do sistema — Keychain no iOS,
-/// EncryptedSharedPreferences no Android.
 class SecureTokenStorage implements TokenStorage {
   const SecureTokenStorage([this._storage = const FlutterSecureStorage()]);
 
@@ -40,7 +38,6 @@ class SecureTokenStorage implements TokenStorage {
   }
 }
 
-/// Em memória: usado com mocks e nos testes, onde o Keychain não existe.
 class InMemoryTokenStorage implements TokenStorage {
   TokenPair? _tokens;
 

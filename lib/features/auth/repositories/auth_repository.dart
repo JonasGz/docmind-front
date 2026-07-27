@@ -8,9 +8,6 @@ class AuthRepository {
   final AuthDatasource _datasource;
   final TokenStorage _storage;
 
-  /// Recupera a sessão guardada ao abrir o aplicativo. Se os tokens
-  /// existirem mas não valerem mais, limpa e devolve nulo em vez de
-  /// propagar erro — a tela de login é a resposta certa nesse caso.
   Future<User?> restoreSession() async {
     final tokens = await _storage.read();
     if (tokens == null) return null;

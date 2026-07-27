@@ -4,8 +4,6 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-/// Chip pill de 4×12, font 10–11/500. Três variantes no design system:
-/// acento (fundo gold tint), neutro (borda gray-200) e status (dot + cor).
 class AppChip extends StatelessWidget {
   const AppChip.accent({super.key, required this.label, this.icon, this.onTap})
     : _variant = _ChipVariant.accent,
@@ -15,7 +13,6 @@ class AppChip extends StatelessWidget {
     : _variant = _ChipVariant.neutral,
       _dotColor = null;
 
-  /// Status com dot colorido — "Pronto" (success) ou "Falhou" (danger).
   const AppChip.status({
     super.key,
     required this.label,
@@ -77,8 +74,7 @@ class AppChip extends StatelessWidget {
               padding: const EdgeInsets.only(right: AppSpacing.xs),
               child: Icon(icon, size: 11, color: foreground),
             ),
-          // Flexible + ellipsis: nomes de arquivo longos são a regra no
-          // domínio jurídico e não podem estourar o chip.
+
           Flexible(
             child: Text(
               label,

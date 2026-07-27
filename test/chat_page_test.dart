@@ -77,7 +77,6 @@ void main() {
   });
 
   testWidgets('a conversa só é criada no primeiro envio', (tester) async {
-    // Sem isso o histórico encheria de conversas vazias a cada abertura.
     final datasource = await pumpChat(tester);
     expect(datasource.createCalls, 0);
 
@@ -87,7 +86,6 @@ void main() {
     await settle(tester);
     expect(datasource.createCalls, 1);
 
-    // A segunda mensagem reaproveita a conversa.
     await tester.enterText(find.byType(TextField), 'segunda');
     await tester.pump();
     await tester.tap(find.bySemanticsLabel('Enviar'));
@@ -108,7 +106,6 @@ void main() {
     await tapSend();
     expect(find.text('Seus documentos já foram processados.'), findsOneWidget);
 
-    // Só espaços também não envia.
     await tester.enterText(find.byType(TextField), '   ');
     await tester.pump();
     await tapSend();
@@ -126,7 +123,6 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Enviar'));
     await tester.pump(const Duration(milliseconds: 300));
 
-    // A pergunta aparece antes da resposta chegar.
     expect(find.text('Qual o prazo?'), findsOneWidget);
     expect(find.text('Aguardando a resposta…'), findsOneWidget);
 
@@ -153,7 +149,7 @@ void main() {
       find.textContaining('vigência do presente contrato'),
       findsOneWidget,
     );
-    // O score fica visível: em matéria jurídica, calibra a confiança.
+
     expect(find.textContaining('87%'), findsOneWidget);
   });
 
@@ -170,7 +166,7 @@ void main() {
     await settle(tester);
 
     expect(find.text('Não foi possível enviar a pergunta.'), findsOneWidget);
-    // A pergunta otimista sai da lista, para não parecer enviada.
+
     expect(find.text('Qual o prazo?'), findsNothing);
   });
 

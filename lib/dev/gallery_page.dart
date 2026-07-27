@@ -23,8 +23,6 @@ import '../features/documents/widgets/document_card.dart';
 import '../features/documents/widgets/upload_button.dart';
 import '../features/settings/widgets/profile_card.dart';
 
-/// Galeria de componentes e atalho para as 4 telas.
-/// Rota `/dev/gallery` — ferramenta de revisão, fora do app final.
 class GalleryPage extends StatelessWidget {
   const GalleryPage({super.key});
 
@@ -90,8 +88,6 @@ class _ScreenLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // As telas internas dependem do shell para ter a tab bar, então aqui
-    // navegamos por rota em vez de instanciar a página direto.
     return Wrap(
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,

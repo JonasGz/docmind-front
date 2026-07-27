@@ -9,11 +9,6 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_header.dart';
 import '../providers/documents_providers.dart';
 
-/// Visualizador de PDF, empilhado sobre a aba de origem.
-///
-/// Abre na página citada quando o usuário chegou por um chip de fonte do
-/// chat: sem isso a auditoria da citação exigiria procurar a página à mão em
-/// documentos de dezenas de páginas.
 class DocumentViewerPage extends ConsumerStatefulWidget {
   const DocumentViewerPage({
     super.key,
@@ -85,7 +80,6 @@ class _Viewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Com mocks não há arquivo real para renderizar.
     if (AppConfig.useMocks) {
       return _ViewerMessage(
         'Pré-visualização indisponível no modo sem servidor.'
