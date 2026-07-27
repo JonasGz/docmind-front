@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -58,14 +56,6 @@ class _ChatComposerState extends State<ChatComposer> {
       ),
       child: Row(
         children: [
-          AppIconButton.outline(
-            icon: AppIcons.attach,
-            semanticLabel: 'Anexar documento',
-
-            onPressed: widget.enabled
-                ? () => context.go(Routes.documents)
-                : null,
-          ),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(

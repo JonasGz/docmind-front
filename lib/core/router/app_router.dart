@@ -15,12 +15,17 @@ import 'routes.dart';
 
 part 'app_router.g.dart';
 
-GoRouter createRouter({String initialLocation = Routes.chat, Ref? ref}) {
+GoRouter createRouter({
+  String initialLocation = Routes.chat,
+  Ref? ref,
+  Listenable? refreshListenable,
+}) {
   final rootKey = GlobalKey<NavigatorState>();
 
   return GoRouter(
     navigatorKey: rootKey,
     initialLocation: initialLocation,
+    refreshListenable: refreshListenable,
     redirect: ref == null ? null : (context, state) => _guard(ref, state),
     routes: [
       GoRoute(
@@ -86,10 +91,11 @@ GoRouter createRouter({String initialLocation = Routes.chat, Ref? ref}) {
 
 String? _guard(Ref ref, GoRouterState state) {
   final session = ref.read(authViewModelProvider);
-  if (session.isLoading) return null;
+  final atLogin = state.matchedLocation == Routes.login;
+
+  if (session.isLoading) return atLogin ? null : Routes.login;
 
   final isSignedIn = session.value != null;
-  final atLogin = state.matchedLocation == Routes.login;
 
   if (!isSignedIn && !atLogin) return Routes.login;
   if (isSignedIn && atLogin) return Routes.chat;
@@ -98,6 +104,9 @@ String? _guard(Ref ref, GoRouterState state) {
 
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
-  ref.listen(authViewModelProvider, (_, _) {});
-  return createRouter(ref: ref);
+  final notifier = ValueNotifier(0);
+  ref.onDispose(notifier.dispose);
+  ref.listen(authViewModelProvider, (_, _) => notifier.value++);
+
+  return createRouter(ref: ref, refreshListenable: notifier);
 }
