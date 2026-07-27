@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/config/app_config.dart';
 import '../datasources/documents_datasource.dart';
 import '../datasources/documents_mock_datasource.dart';
+import '../models/document.dart';
 import '../repositories/documents_repository.dart';
 
 part 'documents_providers.g.dart';
@@ -29,3 +30,13 @@ DocumentsDatasource documentsDatasource(Ref ref) {
 @Riverpod(keepAlive: true)
 DocumentsRepository documentsRepository(Ref ref) =>
     DocumentsRepository(ref.watch(documentsDatasourceProvider));
+
+/// Documento avulso, para o visualizador que recebe só o id na rota.
+@riverpod
+Future<Document> documentById(Ref ref, String id) =>
+    ref.watch(documentsRepositoryProvider).byId(id);
+
+/// URL assinada e temporária do PDF.
+@riverpod
+Future<String> documentDownloadUrl(Ref ref, String id) =>
+    ref.watch(documentsRepositoryProvider).downloadUrl(id);
