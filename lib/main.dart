@@ -1,0 +1,26 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+
+void main() {
+  runApp(const DocMindApp());
+}
+
+class DocMindApp extends StatelessWidget {
+  const DocMindApp({super.key, this.router});
+
+  /// Injetável para que cada teste use um router próprio.
+  final GoRouter? router;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Doc Mind',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      routerConfig: router ?? appRouter,
+    );
+  }
+}
