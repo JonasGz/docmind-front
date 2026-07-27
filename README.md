@@ -3,9 +3,41 @@
 App mobile do Doc Mind. A spec completa está em
 [`../ref/SPECS/SPEC-FRONTEND.md`](../ref/SPECS/SPEC-FRONTEND.md).
 
-## Estado: Fase 1 — Design System
+## Estado: Fase 3 — Models e mocks
 
-Concluída. O que existe:
+Concluídas as fases 1 a 3.
+
+### Fase 3 — Models e mocks
+
+Models Dart espelhando os schemas Pydantic do backend (Freezed +
+json_serializable, `field_rename: snake` no `build.yaml`):
+
+| Model | Schema do backend |
+| --- | --- |
+| `Document`, `DocumentStatus`, `DocumentType` | `DocumentResponse` |
+| `Conversation` | `ConversationResponse` |
+| `Message`, `Source`, `MessageRole` | `MessageResponse`, `Source` |
+| `User` | `UserResponse` |
+| `TokenPair` | `TokenPair` |
+
+Os enums têm um membro `unknown`: uma categoria nova no backend não pode
+derrubar a tela do usuário.
+
+Datasources com mock em memória — o de documentos simula o pipeline
+assíncrono (`uploaded` → `processing` → `indexed`), o de conversas responde
+por palavra-chave e **admite não saber** quando nada bate, que é o
+comportamento crítico no domínio jurídico.
+
+A troca mock/HTTP fica em `AppConfig.useMocks`, lido de `--dart-define`.
+
+### Fase 2 — Navegação
+
+`go_router` com `StatefulShellRoute.indexedStack`. Histórico de conversas e
+visualizador de PDF são rotas empilhadas no navigator raiz, cobrindo a tab bar.
+
+### Fase 1 — Design System
+
+O que existe:
 
 - **Tokens** (`lib/core/theme/`) — cores, tipografia Poppins, espaçamento,
   radius e sombras, todos derivados de `ref/FRONT/design-system.md`.
@@ -31,12 +63,15 @@ dados". As Fases 4 e 6 reescrevem essas telas contra o contrato real.
 
 ```bash
 flutter pub get
-flutter run                 # abre na galeria
-flutter test                # 3 viewports: 390×844, 1200×900, 800×600
+flutter pub run build_runner build    # models Freezed e providers Riverpod
+flutter run                            # roda com mocks
+flutter test
 flutter analyze
 ```
 
+A galeria de componentes fica em Ajustes → Desenvolvimento.
+
 ## Próxima fase
 
-Fase 2 — navegação com `go_router` + `StatefulShellRoute`, preservando estado
-por aba.
+Fase 4 — tela de Documentos ligada aos models reais: lista, upload, polling
+de status e busca client-side.

@@ -1,0 +1,12 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # O backend é FastAPI/Pydantic e serializa em snake_case; os models
+          # Dart usam camelCase. Configurado aqui para não repetir @JsonKey
+          # em cada campo.
+          field_rename: snake
+          # Campos ausentes na resposta devem falhar alto, não virar null
+          # silenciosamente — o contrato é conhecido e estável.
+          create_to_json: true
