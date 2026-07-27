@@ -15,6 +15,9 @@ import '../core/widgets/app_tab_bar.dart';
 import '../core/widgets/app_toggle.dart';
 import '../features/chat/pages/chat_page.dart';
 import '../features/chat/widgets/chat_bubble.dart';
+import '../features/documents/models/document.dart';
+import '../features/documents/models/document_status.dart';
+import '../features/documents/models/document_type.dart';
 import '../features/documents/widgets/document_card.dart';
 import '../features/documents/widgets/upload_button.dart';
 import '../features/settings/widgets/profile_card.dart';
@@ -335,37 +338,73 @@ class _ListGroupSample extends StatelessWidget {
 class _DocumentSamples extends StatelessWidget {
   const _DocumentSamples();
 
+  static Document _sample({
+    required String id,
+    required String filename,
+    required DocumentStatus status,
+    String? title,
+    DocumentType? docType,
+    int? pageCount,
+    String? errorMessage,
+    Duration age = Duration.zero,
+  }) {
+    final createdAt = DateTime.now().subtract(age);
+    return Document(
+      id: id,
+      filename: filename,
+      status: status,
+      title: title,
+      docType: docType,
+      rawDocType: null,
+      identifiers: null,
+      pageCount: pageCount,
+      chunkCount: null,
+      errorMessage: errorMessage,
+      createdAt: createdAt,
+      updatedAt: createdAt,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         DocumentCard(
-          fileType: 'PDF',
-          name: 'Contrato_Locacao.pdf',
-          meta: '12 páginas · há 2 dias',
-          status: DocumentCardStatus.ready,
+          document: _sample(
+            id: 'g1',
+            filename: 'Contrato_Locacao.pdf',
+            title: 'Contrato de Locação Comercial',
+            docType: DocumentType.contrato,
+            status: DocumentStatus.indexed,
+            pageCount: 12,
+            age: const Duration(days: 2),
+          ),
         ),
-        SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         DocumentCard(
-          fileType: 'PDF',
-          name: 'Processando_com_percentual.pdf',
-          meta: '6 páginas · agora',
-          status: DocumentCardStatus.processing,
-          progress: 0.64,
+          document: _sample(
+            id: 'g2',
+            filename: 'Enviando.pdf',
+            status: DocumentStatus.uploaded,
+          ),
         ),
-        SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         DocumentCard(
-          fileType: 'PDF',
-          name: 'Processando_indeterminado.pdf',
-          meta: 'enviado agora',
-          status: DocumentCardStatus.processing,
+          document: _sample(
+            id: 'g3',
+            filename: 'Processando.pdf',
+            status: DocumentStatus.processing,
+          ),
         ),
-        SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         DocumentCard(
-          fileType: 'PDF',
-          name: 'Falhou.pdf',
-          meta: 'erro ao processar',
-          status: DocumentCardStatus.failed,
+          document: _sample(
+            id: 'g4',
+            filename: 'Peticao_Digitalizada.pdf',
+            status: DocumentStatus.failed,
+            errorMessage: 'PDF sem camada textual',
+            age: const Duration(days: 1),
+          ),
         ),
       ],
     );

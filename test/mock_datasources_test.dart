@@ -97,24 +97,25 @@ void main() {
       thinkingTime: Duration.zero,
     );
 
-    test('a conversa nasce vazia e ganha título na primeira pergunta',
-        () async {
-      final datasource = build();
+    test(
+      'a conversa nasce vazia e ganha título na primeira pergunta',
+      () async {
+        final datasource = build();
 
-      final conversation = await datasource.create();
-      expect(await datasource.messages(conversation.id), isEmpty);
+        final conversation = await datasource.create();
+        expect(await datasource.messages(conversation.id), isEmpty);
 
-      await datasource.sendMessage(
-        conversationId: conversation.id,
-        content: 'Qual o prazo de vigência do contrato?',
-      );
+        await datasource.sendMessage(
+          conversationId: conversation.id,
+          content: 'Qual o prazo de vigência do contrato?',
+        );
 
-      final updated = (await datasource.list()).single;
-      expect(updated.title, 'Qual o prazo de vigência do contrato?');
-    });
+        final updated = (await datasource.list()).single;
+        expect(updated.title, 'Qual o prazo de vigência do contrato?');
+      },
+    );
 
-    test('responde com fontes quando a pergunta tem base documental',
-        () async {
+    test('responde com fontes quando a pergunta tem base documental', () async {
       final datasource = build();
       final conversation = await datasource.create();
 
@@ -169,7 +170,8 @@ void main() {
 
       await datasource.sendMessage(
         conversationId: conversation.id,
-        content: 'Gostaria de saber, por gentileza, qual é exatamente o prazo '
+        content:
+            'Gostaria de saber, por gentileza, qual é exatamente o prazo '
             'de vigência previsto na cláusula do contrato de locação',
       );
 

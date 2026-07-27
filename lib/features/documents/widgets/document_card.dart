@@ -3,112 +3,120 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/relative_time.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_chip.dart';
+import '../models/document.dart';
+import '../models/document_status.dart';
 
-enum DocumentCardStatus { ready, processing, failed }
-
-/// Card de documento: badge do tipo, nome, metadados e — conforme o status —
-/// barra de progresso + spinner, ou o chip "Pronto".
+/// Card de documento na biblioteca.
+///
+/// Difere do desenho em três pontos, todos por ausência no contrato do
+/// backend: não há tamanho de arquivo, não há percentual de progresso (a
+/// barra é indeterminada) e o badge é sempre PDF, já que o backend recusa
+/// qualquer outro tipo com 415.
 class DocumentCard extends StatelessWidget {
   const DocumentCard({
     super.key,
-    required this.fileType,
-    required this.name,
-    required this.meta,
-    required this.status,
-    this.progress,
+    required this.document,
     this.onTap,
+    this.onDelete,
   });
 
-  final String fileType;
-  final String name;
-  final String meta;
-  final DocumentCardStatus status;
-
-  /// 0–1 quando determinado; `null` renderiza barra indeterminada.
-  /// O backend não expõe percentual — a Fase 4 sempre passa `null`
-  /// (decisão Q3).
-  final double? progress;
-
+  final Document document;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      child: Row(
-        children: [
-          _FileTypeBadge(fileType),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.cardTitle.copyWith(fontSize: 14),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(meta, style: AppTypography.meta),
-                if (status == DocumentCardStatus.processing) ...[
-                  const SizedBox(height: 6),
-                  _ProgressBar(progress),
+    return Dismissible(
+      key: ValueKey(document.id),
+      direction: onDelete == null
+          ? DismissDirection.none
+          : DismissDirection.endToStart,
+      background: const _DeleteBackground(),
+      confirmDismiss: (_) async {
+        onDelete?.call();
+        // A confirmação e a remoção são responsabilidade da página; o card
+        // nunca some sozinho.
+        return false;
+      },
+      child: AppCard(
+        onTap: onTap,
+        child: Row(
+          children: [
+            const _FileTypeBadge(),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    document.displayName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.cardTitle.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(_metaLine, style: AppTypography.meta),
+                  if (document.status.isPending) ...[
+                    const SizedBox(height: 6),
+                    const _IndeterminateProgress(),
+                  ],
+                  if (document.status.hasFailed &&
+                      document.errorMessage != null) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      document.errorMessage!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.meta.copyWith(
+                        color: AppColors.danger,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          switch (status) {
-            DocumentCardStatus.ready => const AppChip.status(
-              label: 'Pronto',
-              color: AppColors.success,
-            ),
-            DocumentCardStatus.failed => const AppChip.status(
-              label: 'Falhou',
-              color: AppColors.danger,
-            ),
-            DocumentCardStatus.processing => const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.gold500,
               ),
             ),
-          },
-        ],
+            const SizedBox(width: AppSpacing.md),
+            _StatusIndicator(document.status),
+          ],
+        ),
       ),
     );
   }
+
+  /// "12 páginas · há 2 dias" — sem o tamanho do arquivo do desenho, que o
+  /// backend não fornece. Antes da indexação nem a contagem de páginas
+  /// existe.
+  String get _metaLine {
+    final parts = <String>[
+      if (document.pageCount case final pages?)
+        pages == 1 ? '1 página' : '$pages páginas',
+      if (document.docType?.label case final label? when document.title != null)
+        label,
+      relativeTime(document.createdAt),
+    ];
+    return parts.join(' · ');
+  }
 }
 
-/// Retângulo 38×44 com a sigla do tipo. PDF é `danger`; qualquer outro tipo
-/// cai em blue-900 — no design o DOCX aparece assim.
 class _FileTypeBadge extends StatelessWidget {
-  const _FileTypeBadge(this.fileType);
-
-  final String fileType;
+  const _FileTypeBadge();
 
   @override
   Widget build(BuildContext context) {
-    final background = fileType.toUpperCase() == 'PDF'
-        ? AppColors.danger
-        : AppColors.blue900;
-
     return Container(
       width: 38,
       height: 44,
       decoration: BoxDecoration(
-        color: background,
+        color: AppColors.danger,
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       alignment: Alignment.center,
       child: Text(
-        fileType.toUpperCase(),
+        'PDF',
         style: AppTypography.tabLabelActive.copyWith(
           fontSize: 9.5,
           fontWeight: FontWeight.w600,
@@ -120,37 +128,66 @@ class _FileTypeBadge extends StatelessWidget {
   }
 }
 
-class _ProgressBar extends StatelessWidget {
-  const _ProgressBar(this.progress);
+class _StatusIndicator extends StatelessWidget {
+  const _StatusIndicator(this.status);
 
-  final double? progress;
+  final DocumentStatus status;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(2),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 4,
-              backgroundColor: AppColors.gray200,
-              color: AppColors.gold500,
-            ),
-          ),
+    return switch (status) {
+      DocumentStatus.indexed => const AppChip.status(
+        label: 'Pronto',
+        color: AppColors.success,
+      ),
+      DocumentStatus.failed => const AppChip.status(
+        label: 'Falhou',
+        color: AppColors.danger,
+      ),
+      DocumentStatus.uploaded || DocumentStatus.processing => const SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.gold500,
         ),
-        if (progress case final progress?) ...[
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            '${(progress * 100).round()}%',
-            style: AppTypography.tabLabelActive.copyWith(
-              fontSize: 10,
-              color: AppColors.gold500,
-            ),
-          ),
-        ],
-      ],
+      ),
+      DocumentStatus.unknown => const SizedBox.shrink(),
+    };
+  }
+}
+
+/// Barra indeterminada: o backend expõe `status`, não percentual, então o
+/// `64%` do desenho não tem como ser honrado.
+class _IndeterminateProgress extends StatelessWidget {
+  const _IndeterminateProgress();
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(2),
+      child: const LinearProgressIndicator(
+        minHeight: 4,
+        backgroundColor: AppColors.gray200,
+        color: AppColors.gold500,
+      ),
+    );
+  }
+}
+
+class _DeleteBackground extends StatelessWidget {
+  const _DeleteBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: AppColors.danger.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: const Icon(Icons.delete_outline, color: AppColors.danger),
     );
   }
 }

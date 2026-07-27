@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -10,7 +12,7 @@ import '../../../core/widgets/app_icons.dart';
 class UploadButton extends StatefulWidget {
   const UploadButton({super.key, required this.onPressed});
 
-  final VoidCallback onPressed;
+  final FutureOr<void> Function() onPressed;
 
   @override
   State<UploadButton> createState() => _UploadButtonState();

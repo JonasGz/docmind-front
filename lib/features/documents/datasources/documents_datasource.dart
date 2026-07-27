@@ -17,10 +17,7 @@ abstract interface class DocumentsDatasource {
 
   /// `POST /documents` — responde 202 com o documento em `uploaded`; o
   /// processamento segue assíncrono. Só aceita `application/pdf`, senão 415.
-  Future<Document> upload({
-    required String filename,
-    required Uint8List bytes,
-  });
+  Future<Document> upload({required String filename, required Uint8List bytes});
 
   /// `DELETE /documents/{id}` — 204.
   Future<void> delete(String id);

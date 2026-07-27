@@ -3,6 +3,7 @@ import 'package:docmind/core/router/routes.dart';
 import 'package:docmind/core/widgets/app_tab_bar.dart';
 import 'package:docmind/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,7 +32,7 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     final router = createRouter();
-    await tester.pumpWidget(DocMindApp(router: router));
+    await tester.pumpWidget(ProviderScope(child: DocMindApp(router: router)));
     await settle(tester);
     return router;
   }
@@ -79,7 +80,9 @@ void main() {
 
     await tester.tap(tab('Documentos'));
     await settle(tester);
-    expect(find.text('4 arquivos · 28,4 MB'), findsOneWidget);
+    // O cabeçalho passou a "N documentos": o backend não expõe o tamanho
+    // total que o desenho mostrava.
+    expect(find.textContaining('documento'), findsWidgets);
 
     await tester.tap(tab('Ajustes'));
     await settle(tester);

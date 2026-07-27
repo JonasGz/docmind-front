@@ -41,8 +41,7 @@ class DocumentsMockDatasource implements DocumentsDatasource {
     await Future<void>.delayed(latency);
     // O backend ordena por data de criação, mais recente primeiro.
     return List.unmodifiable(
-      _documents.toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+      _documents.toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
     );
   }
 
@@ -110,7 +109,10 @@ class DocumentsMockDatasource implements DocumentsDatasource {
           id,
           (d) => d.copyWith(
             status: DocumentStatus.indexed,
-            title: d.filename.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), ''),
+            title: d.filename.replaceAll(
+              RegExp(r'\.pdf$', caseSensitive: false),
+              '',
+            ),
             docType: DocumentType.outro,
             pageCount: 8,
             chunkCount: 24,

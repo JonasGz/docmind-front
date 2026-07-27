@@ -22,8 +22,6 @@ class ConversationsRepository {
   Future<Message> sendMessage({
     required String conversationId,
     required String content,
-  }) => _datasource.sendMessage(
-    conversationId: conversationId,
-    content: content,
-  );
+  }) =>
+      _datasource.sendMessage(conversationId: conversationId, content: content);
 }

@@ -118,8 +118,10 @@ void main() {
         'updated_at': '2026-07-25T14:30:00.000Z',
       };
 
-      expect(Document.fromJson(Document.fromJson(json).toJson()),
-          Document.fromJson(json));
+      expect(
+        Document.fromJson(Document.fromJson(json).toJson()),
+        Document.fromJson(json),
+      );
     });
   });
 
