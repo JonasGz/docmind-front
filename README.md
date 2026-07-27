@@ -13,14 +13,15 @@ flutter test
 flutter analyze
 ```
 
-Contra o backend real, veja [SETUP.md](SETUP.md):
+Contra o backend real:
 
 ```bash
-flutter run \
-  --dart-define=USE_MOCKS=false \
-  --dart-define=API_BASE_URL=http://localhost:8000 \
-  --dart-define=GOOGLE_WEB_CLIENT_ID=...
+cp env/local.example.json env/local.json   # preencha o Client ID
+flutter run --dart-define-from-file=env/local.json
 ```
+
+No VS Code, escolha **Doc Mind (backend local)** no seletor de execução.
+Detalhes e configuração do Google em [SETUP.md](SETUP.md).
 
 A galeria de componentes fica em Ajustes → Desenvolvimento.
 
