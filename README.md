@@ -31,9 +31,9 @@ Imagens do design de referência.
 
 | | |
 | --- | --- |
-| <img src="docs/screens/login-screen.png" width="300" alt="Tela de login com Continuar com Google e Entrar com e-mail"> | <img src="docs/screens/chat-screen.png" width="300" alt="Tela de chat com pergunta, resposta e chip de fonte"> |
+| <img src="docs/screens/login.png" width="280" alt="Tela de login com Continuar com Google e Entrar com e-mail"> | <img src="docs/screens/chat.png" width="280" alt="Tela de chat com pergunta, resposta e chip de fonte"> |
 | **Login** — `/login`<br>Entrar com Google. "Entrar com e-mail" abre um sheet *Em breve*. | **Chat** — `/chat`<br>Pergunta e resposta sobre os documentos. Subtítulo conta `N documentos no contexto`; cada fonte vira chip que abre o PDF na página citada. |
-| <img src="docs/screens/documents-screen.png" width="300" alt="Lista de documentos com busca, upload e status"> | <img src="docs/screens/settings-screen.png" width="300" alt="Tela de ajustes com preferências e conta"> |
+| <img src="docs/screens/documents.png" width="280" alt="Lista de documentos com busca, upload e status"> | <img src="docs/screens/settings.png" width="280" alt="Tela de ajustes com preferências e conta"> |
 | **Documentos** — `/documents`<br>Lista de PDFs com busca client-side, upload e status de processamento. | **Ajustes** — `/settings`<br>Preferência *Citar fontes nas respostas*, sair da conta e acesso à galeria. |
 
 Sem mockup, mas implementadas:
